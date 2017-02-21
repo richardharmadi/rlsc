@@ -6,6 +6,8 @@
  */
 
 #include "BaxterTools.h"
+#include <ctime>
+#include <chrono>
 
 int main(int argc,char* argv[])
 {
@@ -54,8 +56,13 @@ int main(int argc,char* argv[])
 	Eigen::VectorXd qprev(18); // Previous joint angle
 	Eigen::VectorXd ystar(3); // Current target
 	Eigen::VectorXd eps = Eigen::VectorXd::Ones(18)*0.5;
-	Eigen::VectorXd costright(32);
-	Eigen::VectorXd costleft(32);
+	Eigen::VectorXd costright_a(32);
+	Eigen::VectorXd costleft_a(32);
+
+	std::chrono::time_point<std::chrono::system_clock> start, end;
+
+	Eigen::VectorXd cost_b(6);
+	Eigen::VectorXd startingq(18); // starting joint angles
 	//////////////////////////////////////////////////////////////////////
 
 
@@ -100,7 +107,7 @@ int main(int argc,char* argv[])
       bax.AdvanceSimulation(); 
 	 }
 	 costright(i) = (qstart1-qcurrent).squared_norm()
-	 std::cout << "Weighted cost:" << costright(i) << "\n";
+	 std::cout << "Weighted cost" << i << ": "costright_a(i) << "\n";
 	 // To simulate 
 	 //for(int i=0;i<10;i++)
 	 //{
@@ -134,7 +141,7 @@ int main(int argc,char* argv[])
       bax.AdvanceSimulation(); 
 	 }
 	 costleft(i) = (qstart1-qcurrent).squared_norm()
-	 std::cout << "Weighted cost:" << costleft(i) << "\n";
+	 std::cout << "Weighted cost" << i << ": "costleft_a(i) << "\n";
 	}
     ////////////////////////////////////////////////
 	// ================== PART B ==================//
@@ -147,16 +154,19 @@ int main(int argc,char* argv[])
 		 	switch(i){
 		 		case 0:
 		 			qcurrent=qstart1;
+		 			startingq=qstart1;
 		 			break;
 		 		case 1:
 		 			qcurrent=qstart2;
+		 			startingq=qstart2;
 		 			break;
 		 		case 2:
 		 			qcurrent=qstart3;
+		 			startingq=qstart3;
 	 		}
 			// Iterating inverse kinematic algorithm
 			qprev = qcurrent + eps;
-
+			start = std::chrono::system_clock::now();
 			while ((qcurrent-qprev).norm() > e)
 			{
 				qprev = qcurrent;
@@ -174,11 +184,18 @@ int main(int argc,char* argv[])
 				// Update simulation
 			    bax.AdvanceSimulation(); 
 			}
-			// ==== Metric other than cost =====///
-			//costright(i) = (qstart1-qcurrent).squared_norm()
-	 		//std::cout << "Experiment %d Weighted cost %d :" << costright(i) << "\n";
-	 		//runtime
-	 		//plot qcurrent di tiap waktu buat 3 starting position aja, dan untuk 2 test experiment, cari append array eigen
+   			end = std::chrono::system_clock::now();
+ 			std::chrono::duration<double> elapsed_seconds = end-start;
+   			std::cout << "Elapsed time (start point " << j+1 << "): "elapsed_seconds.count() << "s\n";
+			if (j<1)
+			{
+				cost_b(i) = (startingq-qcurrent).squared_norm()
+				std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i) << "\n";
+			}else{
+				cost_b(i+3) = (startingq-qcurrent).squared_norm()
+				std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i+3) << "\n";
+			}
+	 		//plot qcurrent di tiap waktu buat 3 starting position, dan untuk 2 test experiment, cari append array eigen
 	 	}
 	 }
 
