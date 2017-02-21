@@ -54,22 +54,28 @@ int main(int argc,char* argv[])
 	Eigen::VectorXd qprev(18); // Previous joint angle
 	Eigen::VectorXd ystar(3); // Current target
 	Eigen::VectorXd eps = Eigen::VectorXd::Ones(18)*0.5;
+	Eigen::VectorXd costright(32);
+	Eigen::VectorXd costleft(32);
 	//////////////////////////////////////////////////////////////////////
 
 
 	// Loop until 'q' gets pressed
 	char key=0;
 	float e=0.01;
+	
+
 	while(key!='q')
-  {	
+    {	
 	// Get pressed key
 	key=bax.GetKey();
 	
 	// Get target positions
-        bax.GetTargets(target);
+    bax.GetTargets(target);
+
 	// ================== PART A ==================//
-	for(int i=0;i<8;i++) // Iterate for all 8 target positions,
-    	{
+    // ================== right arm =================//
+	for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
+    {
 	 ystar = target.segment(i*3,3);
 
 	 // Iterating inverse kinematic algorithm
@@ -82,27 +88,141 @@ int main(int argc,char* argv[])
 	  y=bax.GetIK(qcurrent); // Get end-effector position
 	  J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
-	  // Compute Inverse Jacobian
-	  Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); 
-	  // Compute joint angles
-	  qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); // for reaching with right arm, and use qcomf_1
-	  std::cout << "Current q:" << qcurrent << "\n";
+	  Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+	  if (i<8)
+	  {
+	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+	  }else{
+	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
+	  }	  
 	  bax.SetJointAngles(qcurrent);
 	  // Update simulation
-    	  bax.AdvanceSimulation(); 
+      bax.AdvanceSimulation(); 
 	 }
+	 costright(i) = (qstart1-qcurrent).squared_norm()
+	 std::cout << "Weighted cost:" << costright(i) << "\n";
 	 // To simulate 
 	 //for(int i=0;i<10;i++)
 	 //{
 	  //bax.SetJointAngles(qcurrent*); matrix yg isi nya 0.1 semua, terus kali element wise
 	 //}
-	}	
+	}
+	// ================== left arm =================//
+	for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
+    {
+	 ystar = target.segment(i*3,3);
+
+	 // Iterating inverse kinematic algorithm
+	 qcurrent = qstart1; // starting position 1
+	 qprev = qcurrent + eps;
+
+	 while ((qcurrent-qprev).norm() > e)
+	 {
+	  qprev = qcurrent;
+	  y=bax.GetIK(qcurrent); // Get end-effector position
+	  J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
+	  Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
+	  Eigen::MatrixXd Jinv = Winv*J_pos_left.transpose()*(J_pos_left*Winv*J_pos_left.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+	  if (i<8)
+	  {
+	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+	  }else{
+	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
+	  }	  
+	  bax.SetJointAngles(qcurrent);
+	  // Update simulation
+      bax.AdvanceSimulation(); 
+	 }
+	 costleft(i) = (qstart1-qcurrent).squared_norm()
+	 std::cout << "Weighted cost:" << costleft(i) << "\n";
+	}
     ////////////////////////////////////////////////
+	// ================== PART B ==================//
+	 ystar = target.segment(0,3);
 
+	 for (int j=0;j<2;j++)
+	 {
+	 	for(int i=0;i<3;i++)
+	 	{
+		 	switch(i){
+		 		case 0:
+		 			qcurrent=qstart1;
+		 			break;
+		 		case 1:
+		 			qcurrent=qstart2;
+		 			break;
+		 		case 2:
+		 			qcurrent=qstart3;
+	 		}
+			// Iterating inverse kinematic algorithm
+			qprev = qcurrent + eps;
 
+			while ((qcurrent-qprev).norm() > e)
+			{
+				qprev = qcurrent;
+				y=bax.GetIK(qcurrent); // Get end-effector position
+				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
+				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
+				Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+				if (j<1)
+				{
+					qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+				}else{
+				    qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)) // use minimum norm for redundancy resolution
+				}	  
+				bax.SetJointAngles(qcurrent);
+				// Update simulation
+			    bax.AdvanceSimulation(); 
+			}
+			// ==== Metric other than cost =====///
+			//costright(i) = (qstart1-qcurrent).squared_norm()
+	 		//std::cout << "Experiment %d Weighted cost %d :" << costright(i) << "\n";
+	 		//runtime
+	 		//plot qcurrent di tiap waktu buat 3 starting position aja, dan untuk 2 test experiment, cari append array eigen
+	 	}
+	 }
+
+	// ================== PART C ==================//
+	for(int j=0;j<3;j++)
+	{
+		for(int i=0;i<8;i++) // Iterate for all 8 target positions, once for q_comf1
+	    {
+		 ystar = target.segment(i*3,3);
+
+		 // Iterating inverse kinematic algorithm
+		 switch(j)
+		 {
+	 		case 0:
+	 			qcurrent=qstart1; //starting position 1
+	 			break;
+	 		case 1:
+	 			qcurrent=qstart2; //starting position 2
+	 			break;
+	 		case 2:
+	 			qcurrent=qstart3; //starting position 3
+	 	}
+		 qprev = qcurrent + eps;
+
+		 while ((qcurrent-qprev).norm() > e)
+		 {
+		  qprev = qcurrent;
+		  y=bax.GetIK(qcurrent); // Get end-effector position
+		  J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
+		  Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
+		  Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+		  qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+		  bax.SetJointAngles(qcurrent);
+		  // Update simulation
+	      bax.AdvanceSimulation(); 
+		 }
+		 //costright(i) = (qstart1-qcurrent).squared_norm()
+		 //std::cout << "Weighted cost:" << costright(i) << "\n";
+		}
+	}
+	//=========== PCA ===============//
   }
   // Stop simulation and close connection
   bax.StopSimulation();
-	return(0);
+  return(0);
 }
 
