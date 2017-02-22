@@ -6,13 +6,11 @@
  */
 
 #include "BaxterTools.h"
-#include <iostream>
 #include <ctime>
 #include <chrono>
 
 int main(int argc,char* argv[])
 {
-  std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   // Create the robot interface object
   BaxterTools bax;
   // Connect to the simulator
@@ -61,7 +59,7 @@ int main(int argc,char* argv[])
 	Eigen::VectorXd costright_a(32);
 	Eigen::VectorXd costleft_a(32);
 
-	using std::chrono::time_point<using std::chrono::system_clock> start, end;
+	//std::chrono::time_point<std::chrono::system_clock> start, end;
 
 	Eigen::VectorXd cost_b(6);
 	Eigen::VectorXd startingq(18); // starting joint angles
@@ -115,7 +113,7 @@ int main(int argc,char* argv[])
 	  // Update simulation
       bax.AdvanceSimulation(); 
 	 }
-	 costright(i) = (qstart1-qcurrent).squared_norm()
+	 costright_a(i) = (qstart1-qcurrent).squaredNorm();
 	 std::cout << "Weighted cost" << i << ": "costright_a(i) << "\n";
 	}
 	// ================== left arm =================//
@@ -144,7 +142,7 @@ int main(int argc,char* argv[])
 	  // Update simulation
       bax.AdvanceSimulation(); 
 	 }
-	 costleft(i) = (qstart1-qcurrent).squared_norm()
+	 costleft_a(i) = (qstart1-qcurrent).squaredNorm();
 	 std::cout << "Weighted cost" << i << ": "costleft_a(i) << "\n";
 	}
     ////////////////////////////////////////////////
@@ -170,7 +168,7 @@ int main(int argc,char* argv[])
 	 		}
 			// Iterating inverse kinematic algorithm
 			qprev = qcurrent + eps;
-			start = std::chrono::system_clock::now();
+			//start = std::chrono::system_clock::now();
 			while ((qcurrent-qprev).norm() > e)
 			{
 				qprev = qcurrent;
@@ -196,15 +194,15 @@ int main(int argc,char* argv[])
 				// Update simulation
 			    bax.AdvanceSimulation(); 
 			}
-   			end = std::chrono::system_clock::now();
- 			std::chrono::duration<double> elapsed_seconds = end-start;
-   			std::cout << "Elapsed time (start point " << j+1 << "): "elapsed_seconds.count() << "s\n";
+   			//end = std::chrono::system_clock::now();
+ 			//std::chrono::duration<double> elapsed_seconds = end-start;
+   			//std::cout << "Elapsed time (start point " << j+1 << "): "elapsed_seconds.count() << "s\n";
 			if (j<1)
 			{
-				cost_b(i) = (startingq-qcurrent).squared_norm()
+				cost_b(i) = (startingq-qcurrent).squaredNorm();
 				std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i) << "\n";
 			}else{
-				cost_b(i+3) = (startingq-qcurrent).squared_norm()
+				cost_b(i+3) = (startingq-qcurrent).squaredNorm();
 				std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i+3) << "\n";
 			}
 	 		std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 1 " << qdof1 << "\n";
@@ -269,9 +267,10 @@ int main(int argc,char* argv[])
 	 ystar_final = target.segment(i*3,3);
 	 add = ystar_final*div;
 	 ystar = add;
-	 while(ystar<ystar_final)
+	 bool r = ystar.isApprox(ystar_final) // while we haven't reach the original target
+	 while(!r)
 	 {
-	 	 qcurrent = qfinal; // set the last target as the starting position
+	 	 qcurrent = qfinal; // set the final position (last target) as the starting position
 		 qprev = qcurrent + eps;
 
 		 while ((qcurrent-qprev).norm() > e)
@@ -286,8 +285,8 @@ int main(int argc,char* argv[])
 		  // Update simulation
 	      bax.AdvanceSimulation(); 
 		 }
-		 qfinal = qcurrent;
-		 ystar+=add;
+		 qfinal = qcurrent; // set the final current position (which assumed to be our target), as the final position
+		 ystar+=add; // keep add ystar with small value
 	 }
 	}
   // Stop simulation and close connection
