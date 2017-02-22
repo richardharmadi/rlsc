@@ -80,42 +80,42 @@ int main(int argc,char* argv[])
 
 	while(key!='q')
     {	
-	// Get pressed key
-	key=bax.GetKey();
+		// Get pressed key
+		key=bax.GetKey();
 	
-	// Get target positions
-    bax.GetTargets(target);
+		// Get target positions
+    	bax.GetTargets(target);
 
-	// ================== PART A ==================//
-    // ================== right arm =================//
-	for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
-    {
-	 ystar = target.segment(i*3,3);
+		// ================== PART A ==================//
+    	// ================== right arm =================//
+		for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
+    	{
+	 		ystar = target.segment(i*3,3);
 
-	 // Iterating inverse kinematic algorithm
-	 qcurrent = qstart1; // starting position 1
-	 qprev = qcurrent + eps;
+	 	// Iterating inverse kinematic algorithm
+	 		qcurrent = qstart1; // starting position 1
+	 		qprev = qcurrent + eps;
 
-	 while ((qcurrent-qprev).norm() > e)
-	 {
-	  qprev = qcurrent;
-	  y=bax.GetIK(qcurrent); // Get end-effector position
-	  J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
-	  Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
-	  Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-	  if (i<8)
-	  {
-	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-	  }else{
-	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
-	  }	  
-	  bax.SetJointAngles(qcurrent);
-	  // Update simulation
-      bax.AdvanceSimulation(); 
-	 }
-	 costright_a(i) = (qstart1-qcurrent).squaredNorm();
-	 std::cout << "Weighted cost" << i << ": "costright_a(i) << "\n";
-	}
+			while ((qcurrent-qprev).norm() > e)
+	 		{
+			  qprev = qcurrent;
+			  y=bax.GetIK(qcurrent); // Get end-effector position
+			  J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
+			  Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
+			  Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+	  		  	if (i<8)
+	  			{
+	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+	  			}else{
+	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
+	  			}	  
+	  			bax.SetJointAngles(qcurrent);
+				// Update simulation
+			    bax.AdvanceSimulation(); 
+	 		}
+	 		costright_a(i) = (qstart1-qcurrent).squaredNorm();
+	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
+		}
 	// ================== left arm =================//
 	for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
     {
@@ -143,7 +143,7 @@ int main(int argc,char* argv[])
       bax.AdvanceSimulation(); 
 	 }
 	 costleft_a(i) = (qstart1-qcurrent).squaredNorm();
-	 std::cout << "Weighted cost" << i << ": "costleft_a(i) << "\n";
+	 std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	}
     ////////////////////////////////////////////////
 	// ================== PART B ==================//
@@ -188,7 +188,7 @@ int main(int argc,char* argv[])
 				{
 					qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
 				}else{
-				    qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)) // use minimum norm for redundancy resolution
+				    qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
 				}	  
 				bax.SetJointAngles(qcurrent);
 				// Update simulation
@@ -258,7 +258,7 @@ int main(int argc,char* argv[])
 	//std::cout << "Explained variance:\n" << eig.eigenvectors().col << "\n";
 	//tampilin dimensi nya, tambahin buat cari explained variance nya
 	//Use Principal Component Analysis to show the true dimensionality of the underlying task 
-  }
+  
   //================ Video Simulation ================//
 	qfinal = qstart1; // first starting position
 
@@ -267,7 +267,7 @@ int main(int argc,char* argv[])
 	 ystar_final = target.segment(i*3,3);
 	 add = ystar_final*div;
 	 ystar = add;
-	 bool r = ystar.isApprox(ystar_final) // while we haven't reach the original target
+	 bool r = ystar.isApprox(ystar_final); // while we haven't reach the original target
 	 while(!r)
 	 {
 	 	 qcurrent = qfinal; // set the final position (last target) as the starting position
@@ -293,4 +293,4 @@ int main(int argc,char* argv[])
   bax.StopSimulation();
   return(0);
 }
-
+}
