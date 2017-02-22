@@ -6,11 +6,13 @@
  */
 
 #include "BaxterTools.h"
+#include <iostream>
 #include <ctime>
 #include <chrono>
 
 int main(int argc,char* argv[])
 {
+  std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   // Create the robot interface object
   BaxterTools bax;
   // Connect to the simulator
