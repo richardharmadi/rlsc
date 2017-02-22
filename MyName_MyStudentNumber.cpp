@@ -6,8 +6,8 @@
  */
 
 #include "BaxterTools.h"
-#include <ctime>
-#include <chrono>
+//#include <ctime>
+//#include <chrono>
 
 int main(int argc,char* argv[])
 {
@@ -60,7 +60,7 @@ int main(int argc,char* argv[])
 	Eigen::VectorXd costleft_a(32);
 
 	//std::chrono::time_point<std::chrono::system_clock> start, end;
-
+	
 	Eigen::VectorXd cost_b(6);
 	Eigen::VectorXd startingq(18); // starting joint angles
 	Eigen::VectorXd qdof1,qdof2,qdof3,qdof4,qdof5,qdof6,qdof7;
@@ -76,10 +76,9 @@ int main(int argc,char* argv[])
 	// Loop until 'q' gets pressed
 	char key=0;
 	float e=0.01;
-	
-
+	 
 	while(key!='q')
-    {	
+    {		
 		// Get pressed key
 		key=bax.GetKey();
 	
@@ -91,11 +90,11 @@ int main(int argc,char* argv[])
 		for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
     	{
 	 		ystar = target.segment(i*3,3);
-
+		
 	 	// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		qprev = qcurrent + eps;
-
+			
 			while ((qcurrent-qprev).norm() > e)
 	 		{
 			  qprev = qcurrent;
@@ -103,6 +102,7 @@ int main(int argc,char* argv[])
 			  J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 			  Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 			  Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+			
 	  		  	if (i<8)
 	  			{
 	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
@@ -116,6 +116,7 @@ int main(int argc,char* argv[])
 	 		costright_a(i) = (qstart1-qcurrent).squaredNorm();
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 		}
+	
 	// ================== left arm =================//
 	for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
     {
@@ -124,7 +125,7 @@ int main(int argc,char* argv[])
 	 // Iterating inverse kinematic algorithm
 	 qcurrent = qstart1; // starting position 1
 	 qprev = qcurrent + eps;
-
+		
 	 while ((qcurrent-qprev).norm() > e)
 	 {
 	  qprev = qcurrent;
@@ -288,9 +289,10 @@ int main(int argc,char* argv[])
 		 qfinal = qcurrent; // set the final current position (which assumed to be our target), as the final position
 		 ystar+=add; // keep add ystar with small value
 	 }
-	}
+	}*/
+}
   // Stop simulation and close connection
   bax.StopSimulation();
   return(0);
-}
+
 }
