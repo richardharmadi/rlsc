@@ -88,8 +88,14 @@ int main(int argc,char* argv[])
 		// ================== PART A ==================//
     	// ================== right arm =================//
 		for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
-    	{
-	 		ystar = target.segment(i*3,3);
+    	{	
+    		if (i<8)
+    		{
+    			ystar = target.segment(i*3,3);
+    		}else {
+    			ystar = target.segment((i-8)*3,3);
+    		}
+	 		
 		
 	 	// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
@@ -120,7 +126,13 @@ int main(int argc,char* argv[])
 	// ================== left arm =================//
 	for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
     {
-	 ystar = target.segment(i*3,3);
+	 	if (i<8)
+    		{
+    			ystar = target.segment(i*3,3);
+    		}else {
+    			ystar = target.segment((i-8)*3,3);
+    		}
+	 		
 
 	 // Iterating inverse kinematic algorithm
 	 qcurrent = qstart1; // starting position 1
