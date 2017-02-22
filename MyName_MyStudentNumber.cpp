@@ -38,7 +38,7 @@ int main(int argc,char* argv[])
 	Eigen::MatrixXd Winv = W.inverse();
 
 	Eigen::MatrixXd C = Eigen::MatrixXd::Identity(3,3)*1e3; // Regularisation
-        Eigen::MatrixXd Cinv = Eigen::MatrixXd::Identity(3,3)*1e-3;
+    Eigen::MatrixXd Cinv = Eigen::MatrixXd::Identity(3,3)*1e-3;
 	Eigen::MatrixXd I = Eigen::MatrixXd::Identity(7,7);
 	Eigen::VectorXd qstart1(18); // Starting pose 1
 	Eigen::VectorXd qstart2(18); // Starting pose 2
@@ -59,7 +59,7 @@ int main(int argc,char* argv[])
 	Eigen::VectorXd costright_a(32);
 	Eigen::VectorXd costleft_a(32);
 
-	std::chrono::time_point<std::chrono::system_clock> start, end;
+	using std::chrono::time_point<using std::chrono::system_clock> start, end;
 
 	Eigen::VectorXd cost_b(6);
 	Eigen::VectorXd startingq(18); // starting joint angles
@@ -257,7 +257,7 @@ int main(int argc,char* argv[])
 	std::cout << "Eigen vectors:\n" << eig.eigenvectors() << "\n";
 	//std::cout << "Explained variance:\n" << eig.eigenvectors().col << "\n";
 	//tampilin dimensi nya, tambahin buat cari explained variance nya
-	//Use Principal Component Analysis to show the true dimensionality of the underlying task
+	//Use Principal Component Analysis to show the true dimensionality of the underlying task 
   }
   //================ Video Simulation ================//
 	qfinal = qstart1; // first starting position
