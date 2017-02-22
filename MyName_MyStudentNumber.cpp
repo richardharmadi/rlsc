@@ -69,6 +69,7 @@ int main(int argc,char* argv[])
 	Eigen::VectorXd ystar_final(3);
 	Eigen::VectorXd div = Eigen::VectorXd::Ones(3)*0.1;
 	Eigen::VectorXd add(3);
+	Eigen::MatrixXd pca = Eigen::MatrixXd::Zero(24,7); 
 	//////////////////////////////////////////////////////////////////////
 
 
@@ -114,11 +115,6 @@ int main(int argc,char* argv[])
 	 }
 	 costright(i) = (qstart1-qcurrent).squared_norm()
 	 std::cout << "Weighted cost" << i << ": "costright_a(i) << "\n";
-	 // To simulate 
-	 //for(int i=0;i<10;i++)
-	 //{
-	  //bax.SetJointAngles(qcurrent*); matrix yg isi nya 0.1 semua, terus kali element wise
-	 //}
 	}
 	// ================== left arm =================//
 	for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2
@@ -138,9 +134,9 @@ int main(int argc,char* argv[])
 	  Eigen::MatrixXd Jinv = Winv*J_pos_left.transpose()*(J_pos_left*Winv*J_pos_left.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
 	  if (i<8)
 	  {
-	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+	   qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf1.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_1
 	  }else{
-	   qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
+	   qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf2.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_2
 	  }	  
 	  bax.SetJointAngles(qcurrent);
 	  // Update simulation
@@ -176,7 +172,7 @@ int main(int argc,char* argv[])
 			while ((qcurrent-qprev).norm() > e)
 			{
 				qprev = qcurrent;
-				qdof1 << qdof1,qprev.segment(0,1);
+				qdof1 << qdof1,qprev.segment(0,1); // append array
 				qdof2 << qdof2,qprev.segment(1,1);
 				qdof3 << qdof3,qprev.segment(2,1);
 				qdof4 << qdof4,qprev.segment(3,1);
@@ -250,12 +246,18 @@ int main(int argc,char* argv[])
 		  qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
 		  bax.SetJointAngles(qcurrent);
 		  // Update simulation
-	      bax.AdvanceSimulation(); 
+	      bax.AdvanceSimulation();
 		 }
+		 pca.block(j+i,0,1,7) = qcurrent.segment(0,7); // put every result pose into 1 matrix
 		}
 	}
 	//=========== PCA ===============//
-
+	Eigen::EigenSolver<Eigen::MatrixXd> eig(pca.transpose());
+	std::cout << "Eigen values:\n" << eig.eigenvalues() << "\n"; // 7 eigenvalues
+	std::cout << "Eigen vectors:\n" << eig.eigenvectors() << "\n";
+	//std::cout << "Explained variance:\n" << eig.eigenvectors().col << "\n";
+	//tampilin dimensi nya, tambahin buat cari explained variance nya
+	//Use Principal Component Analysis to show the true dimensionality of the underlying task
   }
   //================ Video Simulation ================//
 	qfinal = qstart1; // first starting position
