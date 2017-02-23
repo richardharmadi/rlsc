@@ -250,6 +250,7 @@ int main(int argc,char* argv[]){
 		//tampilin dimensi nya, tambahin buat cari explained variance nya
 		//Use Principal Component Analysis to show the true dimensionality of the underlying task 
   		*/
+  		/*
   		//================ Video Simulation ================//
 		qfinal = qstart1; // first starting position
 
@@ -278,7 +279,7 @@ int main(int argc,char* argv[]){
 		 		ystar+=add; // keep add ystar with small value
 		 		r = ystar.isApprox(ystar_final)
 	 		}
-		}
+		}*/
 	}
   	// Stop simulation and close connection
   	bax.StopSimulation();
