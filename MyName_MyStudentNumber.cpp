@@ -99,6 +99,7 @@ int main(int argc,char* argv[]){
     		}	 		
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
+	 		qprev = qcurrent + eps;
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
@@ -125,7 +126,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		/*
+		
 		// ================== left arm ===================//
 		std::cout << "PART A Left Arm \n" ;
 		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
@@ -137,7 +138,7 @@ int main(int argc,char* argv[]){
     		}
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
-	 		// qprev = qcurrent + eps;
+	 		qprev = qcurrent + eps;
 			y = bax.GetIK(qcurrent); // get end-effector starting position
 			yprev = y.segment(0,3) + eps;
 			gettimeofday(&time, NULL);
@@ -166,30 +167,28 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		*/
 		
     	// ================== PART B ==================//
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
 
-	 	for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
-	 		for(int i=0;i<3;i++){
-		 		switch(i){
-		 			case 0:
+	 	//for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
+	 	//	for(int i=0;i<3;i++){
+		 //		switch(i){
+		 	//		case 0:
 		 				qcurrent=qstart1;
 		 				startingq=qstart1;
-		 				break;
-		 			case 1:
-		 				qcurrent=qstart2;
-		 				startingq=qstart2;
-		 				break;
-		 			case 2:
-		 				qcurrent=qstart3;
-		 				startingq=qstart3;
-	 			}
+		 	//			break;
+		 	//		case 1:
+		 	//			qcurrent=qstart2;
+		 	//			startingq=qstart2;
+		 	//			break;
+		 	//		case 2:
+		 	//			qcurrent=qstart3;
+		 	//			startingq=qstart3;
+	 		//	}
 				// Iterating inverse kinematic algorithm
-				y = bax.GetIK(qcurrent); // get end-effector starting position
-	 			yprev = y.segment(0,3) + eps;
+	 			qprev = qcurrent + eps;
 				gettimeofday(&time, NULL);
 				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 				while ((qcurrent-qprev).squaredNorm()>e){
@@ -206,11 +205,11 @@ int main(int argc,char* argv[]){
 					Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
 					qprev = qcurrent;
 					yprev = bax.GetIK(qprev).segment(0,3);
-					if (j<1){
+					//if (j<1){
 						qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-					}else{
-				    	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
-					} 
+					//}else{
+				    //	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
+					//} 
 					bax.SetJointAngles(qcurrent);
 					// Update simulation
 			    	bax.AdvanceSimulation(); 
@@ -219,13 +218,13 @@ int main(int argc,char* argv[]){
 	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 	 			runtime = end_time-start_time;
 				std::cout << "Run time: " << runtime << "\n";
-				if (j<1){
-					cost_b(i) = (startingq-qcurrent).squaredNorm();
-					std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i) << "\n";
-				}else{
-					cost_b(i+3) = (startingq-qcurrent).squaredNorm();
-					std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i+3) << "\n";
-				}
+				//if (j<1){
+					cost_b(1) = (startingq-qcurrent).squaredNorm();
+					std::cout << "Experiment " << 1 << "Starting pos " << 1 << "Weighted cost:" << cost_b(1) << "\n";
+				//}else{
+				//	cost_b(i+3) = (startingq-qcurrent).squaredNorm();
+				//	std::cout << "Experiment " << j+1 << "Starting pos " << i+1 << "Weighted cost:" << cost_b(i+3) << "\n";
+				//}
 				// code below for plotting the joint angles updates
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 1 " << qdof1 << "\n";
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 2 " << qdof2 << "\n";
