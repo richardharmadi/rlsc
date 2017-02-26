@@ -120,17 +120,16 @@ int main(int argc,char* argv[]){
 	 		}
 	 		gettimeofday(&time, NULL);
 	 		end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-			//runtime = difftime(end_time,start_time);
 	 		runtime = end_time-start_time;
 	 		costright_a(i) = (qstart1-qcurrent).squaredNorm();
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		
+		/*
 		// ================== left arm ===================//
 		std::cout << "PART A Left Arm \n" ;
-		for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
-	 		e=1e-3
+		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
+	 		e=1e-1;
 	 		if (i<8){
     			ystar = target.segment(i*3,3);
     		}else {
@@ -143,7 +142,7 @@ int main(int argc,char* argv[]){
 			yprev = y.segment(0,3) + eps;
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-	 		while ((qcurrent-qprev).norm() > e){
+	 		while ((qcurrent-qprev).squaredNorm() > e){
 	 			y=bax.GetIK(qcurrent); // Get end-effector position	
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  			Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the left arm (a 3x7 block at row 6th and column 7th)
@@ -167,9 +166,10 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
+		*/
 		
-		/*
     	// ================== PART B ==================//
+	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
 
 	 	for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
@@ -190,9 +190,9 @@ int main(int argc,char* argv[]){
 				// Iterating inverse kinematic algorithm
 				y = bax.GetIK(qcurrent); // get end-effector starting position
 	 			yprev = y.segment(0,3) + eps;
-				time(&start_time);
-				//start = std::chrono::system_clock::now();
-				while ((y.segment(0,3)-yprev).norm()>e){
+				gettimeofday(&time, NULL);
+				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+				while ((qcurrent-qprev).squaredNorm()>e){
 					//qdof1 << qdof1,qprev.segment(0,1); // append array
 					//qdof2 << qdof2,qprev.segment(1,1);
 					//qdof3 << qdof3,qprev.segment(2,1);
@@ -200,6 +200,7 @@ int main(int argc,char* argv[]){
 					//qdof5 << qdof5,qprev.segment(4,1);
 					//qdof6 << qdof6,qprev.segment(5,1);
 					//qdof7 << qdof7,qprev.segment(6,1);
+					y=bax.GetIK(qcurrent); // Get end-effector position	 
 					J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 					Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 					Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
@@ -209,18 +210,15 @@ int main(int argc,char* argv[]){
 						qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
 					}else{
 				    	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
-					}
-					y=bax.GetIK(qcurrent); // Get end-effector position	  
+					} 
 					bax.SetJointAngles(qcurrent);
 					// Update simulation
 			    	bax.AdvanceSimulation(); 
 				}
-				time(&end_time);
-				runtime = difftime(end_time,start_time);
+				gettimeofday(&time, NULL);
+	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+	 			runtime = end_time-start_time;
 				std::cout << "Run time: " << runtime << "\n";
-   				//end = std::chrono::system_clock::now();
- 				//std::chrono::duration<double> elapsed_seconds = end-start;
-   				//std::cout << "Elapsed time (start point " << j+1 << "): "elapsed_seconds.count() << "s\n";
 				if (j<1){
 					cost_b(i) = (startingq-qcurrent).squaredNorm();
 					std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i) << "\n";
@@ -238,7 +236,7 @@ int main(int argc,char* argv[]){
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 7 " << qdof7 << "\n";
 	 		}
 	 	}
-	 	*/
+	 	
 		/*
 		// ================== PART C ==================//
 		for(int j=0;j<3;j++){
