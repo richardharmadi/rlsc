@@ -233,20 +233,21 @@ int main(int argc,char* argv[]){
 		 		switch(j){
 	 				case 0:
 	 					qcurrent=qstart1; //starting position 1
-	 					bax.SetJointAngles(qstart1)
+	 					bax.SetJointAngles(qstart1);
 	 					break;
 	 				case 1:
 	 					qcurrent=qstart2; //starting position 2
-	 					bax.SetJointAngles(qstart2)
+	 					bax.SetJointAngles(qstart2);
 	 					break;
 	 				case 2:
 	 					qcurrent=qstart3; //starting position 3
-	 					bax.SetJointAngles(qstart3)
+	 					bax.SetJointAngles(qstart3);
 	 					break;
 	 			}
 	 			y=bax.GetIK(qcurrent);
-				yprev = y.segment(0,3) + eps;
-				time(&start_time);
+				// yprev = y.segment(0,3) + eps;
+				gettimeofday(&time, NULL);
+				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 				while ((y.segment(0,3)-yprev).norm()>e){	 
 		  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 		  			Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
@@ -260,8 +261,9 @@ int main(int argc,char* argv[]){
 	      			bax.AdvanceSimulation();
 					std::cout << "Start pose "<< j+1 << "Target" << i+1 << "\n";
 		 		}
-		 		time(&end_time);
-				runtime = difftime(end_time,start_time);
+		 		gettimeofday(&time, NULL);
+	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+	 			runtime = end_time-start_time;
 				std::cout << "Run time: " << runtime << "\n";
 		 	//pca.row(j+i) = qcurrent.segment(0,7); // put every result pose into 1 matrix
 			}
