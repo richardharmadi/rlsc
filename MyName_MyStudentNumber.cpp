@@ -183,7 +183,7 @@ int main(int argc,char* argv[]){
 		 			qcurrent=qstart2;
 		 			startingq=qstart2;
 		 			bax.SetJointAngles(qcurrent);
-		 		}else (i==3){
+		 		}else if (i==3){
 		 			qcurrent=qstart3;
 		 			startingq=qstart3;
 		 			bax.SetJointAngles(qcurrent);
@@ -235,7 +235,7 @@ int main(int argc,char* argv[]){
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 5 " << qdof5 << "\n";
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 6 " << qdof6 << "\n";
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 7 " << qdof7 << "\n";
-	 		//}
+	 		}
 	 	//}
 	 	
 		/*
