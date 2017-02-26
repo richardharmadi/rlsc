@@ -6,10 +6,12 @@
  */
 
 #include "BaxterTools.h"
+#include <time.h>
 
 int main(int argc,char* argv[]){ 
 	BaxterTools bax; // Create the robot interface object
   	
+  	time_t start_time,end_time;
   	// Connect to the simulator
   	if(argc==2){
     	bax.Connect(argv[1]);
@@ -47,9 +49,8 @@ int main(int argc,char* argv[]){
 	q_comf2 << -20.0/180.0*M_PI, 40.0/180.0*M_PI, 70.0/180.0*M_PI, 90.0/180.0*M_PI, 0,0.5,0,0,0, 20.0/180.0*M_PI, 40.0/180.0*M_PI, -70.0/180.0*M_PI, 90.0/180.0*M_PI, 0,0.5,0,0,0;
 	
 	Eigen::VectorXd qcurrent(18); // Current joint angle
-	Eigen::VectorXd qprev(18); // Previous joint angle
 	Eigen::VectorXd ystar(3); // Current target
-	Eigen::VectorXd eps = Eigen::VectorXd::Ones(18)*0.5;
+	Eigen::VectorXd eps = Eigen::VectorXd::Ones(3)*0.5;
 	Eigen::VectorXd costright_a(32);
 	Eigen::VectorXd costleft_a(32);
 
@@ -59,15 +60,18 @@ int main(int argc,char* argv[]){
 	Eigen::VectorXd startingq(18); // starting joint angles
 	Eigen::VectorXd qdof1,qdof2,qdof3,qdof4,qdof5,qdof6,qdof7;
 
-	Eigen::VectorXd qfinal(18);
-	Eigen::VectorXd ystar_final(3);
-	Eigen::VectorXd add(3);
+	// Eigen::VectorXd qfinal(18);
+	// Eigen::VectorXd ystar_final(3);
+	// Eigen::VectorXd add(3);
+	Eigen::VectorXd yinit(3);
+	Eigen::VectorXd yinter(3);
 	Eigen::MatrixXd pca = Eigen::MatrixXd::Zero(24,7); 
 	//////////////////////////////////////////////////////////////////////
 
 	// Loop until 'q' gets pressed
 	char key=0;
 	float e=1e-3;
+	double runtime;
 	 
 	while(key!='q'){		
 		// Get pressed key
@@ -90,9 +94,10 @@ int main(int argc,char* argv[]){
 	 		
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
-	 		qprev = qcurrent + eps;
-		
-			while ((qcurrent-qprev).norm()>e){
+	 		y = bax.GetIK(qcurrent); // get end-effector starting position
+	 		yprev = y + eps;
+			time(&start_time);
+			while ((y-yprev).norm()>e){
 				qprev = qcurrent;
 			  	y=bax.GetIK(qcurrent); // Get end-effector position
 				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
@@ -107,10 +112,13 @@ int main(int argc,char* argv[]){
 				// Update simulation
 			    bax.AdvanceSimulation(); 
 	 		}
+	 		time(&end_time);
+			runtime = difftime(end_time,start_time);
 	 		costright_a(i) = (qstart1-qcurrent).squaredNorm();
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
+	 		std::cout << "Run time: " << runtime << "\n";
 		}
-	
+		
 		// ================== left arm ===================//
 		for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
 	 		if (i<8){
@@ -118,12 +126,15 @@ int main(int argc,char* argv[]){
     		}else {
     			ystar = target.segment((i-8)*3,3);
     		}
-	 
+	 		
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
-	 		qprev = qcurrent + eps;
-		
-	 		while ((qcurrent-qprev).norm() > e){
+	 		// qprev = qcurrent + eps;
+			y = bax.GetIK(qcurrent); // get end-effector starting position
+			yprev = y + eps;
+			time(&start_time);
+	 		//while ((qcurrent-qprev).norm() > e){
+	  		while((y-yprev).norm()>e){
 	  			qprev = qcurrent;
 	  			y=bax.GetIK(qcurrent); // Get end-effector position
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
@@ -138,8 +149,11 @@ int main(int argc,char* argv[]){
 	  			// Update simulation
       			bax.AdvanceSimulation(); 
 	 		}
+	 		time(&end_time);
+			runtime = difftime(end_time,start_time);
 	 		costleft_a(i) = (qstart1-qcurrent).squaredNorm();
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
+	 		std::cout << "Run time: " << runtime << "\n";
 		}
 		*/
 		/*
@@ -162,9 +176,11 @@ int main(int argc,char* argv[]){
 		 				startingq=qstart3;
 	 			}
 				// Iterating inverse kinematic algorithm
-				qprev = qcurrent + eps;
+				y = bax.GetIK(qcurrent); // get end-effector starting position
+	 			yprev = y + eps;
+				time(&start_time);
 				//start = std::chrono::system_clock::now();
-				while ((qcurrent-qprev).norm() > e){
+				while ((y-yprev).norm()>e){
 					qprev = qcurrent;
 					//qdof1 << qdof1,qprev.segment(0,1); // append array
 					//qdof2 << qdof2,qprev.segment(1,1);
@@ -187,6 +203,9 @@ int main(int argc,char* argv[]){
 					// Update simulation
 			    	bax.AdvanceSimulation(); 
 				}
+				time(&end_time);
+				runtime = difftime(end_time,start_time);
+				std::cout << "Run time: " << runtime << "\n";
    				//end = std::chrono::system_clock::now();
  				//std::chrono::duration<double> elapsed_seconds = end-start;
    				//std::cout << "Elapsed time (start point " << j+1 << "): "elapsed_seconds.count() << "s\n";
@@ -198,13 +217,13 @@ int main(int argc,char* argv[]){
 					std::cout << "Experiment " << j+1 << "Weighted cost " << i+1 << ":" << cost_b(i+3) << "\n";
 				}
 				// code below for plotting the joint angles updates
-	 			std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 1 " << qdof1 << "\n";
-	 			std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 2 " << qdof2 << "\n";
-	 			std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 3 " << qdof3 << "\n";
-	 			std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 4 " << qdof4 << "\n";
-	 			std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 5 " << qdof5 << "\n";
-	 			std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 6 " << qdof6 << "\n";
-	 			std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 7 " << qdof7 << "\n";
+	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 1 " << qdof1 << "\n";
+	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 2 " << qdof2 << "\n";
+	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 3 " << qdof3 << "\n";
+	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 4 " << qdof4 << "\n";
+	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 5 " << qdof5 << "\n";
+	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 6 " << qdof6 << "\n";
+	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 7 " << qdof7 << "\n";
 	 		}
 	 	}
 	 	*/
@@ -225,9 +244,9 @@ int main(int argc,char* argv[]){
 	 				case 2:
 	 					qcurrent=qstart3; //starting position 3
 	 			}
-		 		qprev = qcurrent + eps;
-
-		 		while ((qcurrent-qprev).norm() > e){
+				yprev = y + eps;
+				time(&start_time);
+				while ((y-yprev).norm()>e){
 		  			qprev = qcurrent;
 		  			y=bax.GetIK(qcurrent); // Get end-effector position
 		  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
@@ -239,45 +258,44 @@ int main(int argc,char* argv[]){
 	      			bax.AdvanceSimulation();
 					std::cout << "Start pose "<< j+1 << "Target" << i+1 << "\n";
 		 		}
+		 		time(&end_time);
+				runtime = difftime(end_time,start_time);
+				std::cout << "Run time: " << runtime << "\n";
 		 	//pca.row(j+i) = qcurrent.segment(0,7); // put every result pose into 1 matrix
 			}
 		}
 		//=========== PCA ===============//
 		//Eigen::EigenSolver<Eigen::MatrixXd> eig(pca.transpose());
 		//std::cout << "Eigen values:\n" << eig.eigenvalues() << "\n"; // 7 eigenvalues
-		//std::cout << "Eigen vectors:\n" << eig.eigenvectors() << "\n";
-		//std::cout << "Explained variance:\n" << eig.eigenvectors().col << "\n";
-		//tampilin dimensi nya, tambahin buat cari explained variance nya
-		//Use Principal Component Analysis to show the true dimensionality of the underlying task 
+		//std::cout << "Matrix of Eigen vectors:\n" << eig.eigenvectors() << "\n";
+		//std::cout << "Eigen value 1: " << eig.eigenvalues()[0] << "\n";
+		//std::cout << "Eigen value 2: " << eig.eigenvalues()[1] << "\n";
+		//std::cout << "Eigen value 3: " << eig.eigenvalues()[2] << "\n";
+		//std::cout << "Eigen value 4: " << eig.eigenvalues()[3] << "\n";
+		//std::cout << "Eigen value 5: " << eig.eigenvalues()[4] << "\n";
+		//std::cout << "Eigen value 6: " << eig.eigenvalues()[5] << "\n";
+		//std::cout << "Eigen value 7: " << eig.eigenvalues()[6] << "\n";
+		//Eigen::VectorXd total_eigen(*) *besar nya dimensi eigen value diatas
+		//total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6]
+  		//std::cout << "Explained variance:" << eig.eigenvalues()[0].norm()/total_eigen.norm() 
+
   		*/
   		/*
   		//================ Video Simulation ================//
-		qfinal = qstart1; // first starting position
-
 		for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
-	 		ystar_final = target.segment(i*3,3);
-	 		add = ystar_final*0.1;
-			std::cout << "add" << add << "\n";
-	 		ystar = add;
-	 		bool r = ystar.isApprox(ystar_final); // while we haven't reach the original target
-	 		while(!r){
-	 	 		qcurrent = qfinal; // set the final position (last target) as the starting position
-		 		qprev = qcurrent + eps;
-
-		 		while ((qcurrent-qprev).norm() > e){
-		  			qprev = qcurrent;
-		  			y=bax.GetIK(qcurrent); // Get end-effector position
-		  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
-		  			Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
-		  			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-		  			qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-		  			bax.SetJointAngles(qcurrent);
-		  			// Update simulation
-	      			bax.AdvanceSimulation(); 
-		 		}
-		 		qfinal = qcurrent; // set the final current position (which assumed to be our target), as the final position
-		 		ystar+=add; // keep add ystar with small value
-		 		r = ystar.isApprox(ystar_final)
+	 		ystar = target.segment(i*3,3);
+	 		qcurrent = qstart1; // set initial pose
+			yinit = bax.GetIK(qstart1); // set starting position
+	 		for(int t=1;t<20;t++){ // divide the target to several steps
+				y=bax.GetIK(qcurrent);
+				J=bax.GetJ(qcurrent);
+				yinter = yinit.segment(0,3) + ((t/20)*(ystar-yinit.segment(0,3)))
+				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
+	  			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+	  			qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(yinter-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+	  			bax.SetJointAngles(qcurrent);
+	  			// Update simulation
+      			bax.AdvanceSimulation(); 
 	 		}
 		}*/
 	}
