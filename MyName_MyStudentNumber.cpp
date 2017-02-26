@@ -141,7 +141,7 @@ int main(int argc,char* argv[]){
 			// yprev = y.segment(0,3) + eps;
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-	 		while((y.segment(0,3)-ystar).squaredNorm()>e){ 
+	 		while((y.segment(6,3)-ystar).squaredNorm()>e){ 
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  			Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the left arm (a 3x7 block at row 6th and column 7th)
 	  			Eigen::MatrixXd Jinv = Winv*J_pos_left.transpose()*(J_pos_left*Winv*J_pos_left.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
@@ -165,11 +165,11 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		/*
+		
     	// ================== PART B ==================//
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
-
+	 	e=1e-3;
 	 	for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
 	 		for(int i=0;i<3;i++){
 		 		if(i==1){
@@ -190,7 +190,7 @@ int main(int argc,char* argv[]){
 	 			qprev = qcurrent + eps;
 				gettimeofday(&time, NULL);
 				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-				while ((qcurrent-qprev).squaredNorm()>e){
+				while((y.segment(0,3)-ystar).squaredNorm()>e){ 
 					y=bax.GetIK(qcurrent); // Get end-effector position	 
 					J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 					Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
