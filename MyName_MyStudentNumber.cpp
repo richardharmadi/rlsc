@@ -165,7 +165,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		
+		/*
     	// ================== PART B ==================//
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
@@ -194,18 +194,19 @@ int main(int argc,char* argv[]){
 					J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 					Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 					Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-					// qprev = qcurrent;
-					// yprev = bax.GetIK(qprev).segment(0,3);
-					if (j<1){
-						qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-					}else{
-				    	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
-					} 
-					bax.SetJointAngles(qcurrent);
-					y=bax.GetIK(qcurrent); // Get end-effector position	 
+		  		  	//qprev = qcurrent;
+		  		  	//yprev = bax.GetIK(qprev).segment(0,3);
+		  		  	if (i<8){
+		   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+		  			}else{
+		   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
+		  			}	
+		  			bax.SetJointAngles(qcurrent);
+		  			y=bax.GetIK(qcurrent); // Get end-effector position
 					// Update simulation
-			    	bax.AdvanceSimulation(); 
-				}
+				    bax.AdvanceSimulation();			
+	 			}
+	 			std::cout << "working fine";
 				gettimeofday(&time, NULL);
 	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 	 			runtime = end_time-start_time;
@@ -219,7 +220,7 @@ int main(int argc,char* argv[]){
 				}
 	 		}
 	 	}
-	 	
+	 	*/
 		
 		// ================== PART C ==================//
 		std::cout << "PART C \n" ;
@@ -285,11 +286,15 @@ int main(int argc,char* argv[]){
 		std::cout << "Eigen value 5: " << eig.eigenvalues()[4] << "\n";
 		std::cout << "Eigen value 6: " << eig.eigenvalues()[5] << "\n";
 		std::cout << "Eigen value 7: " << eig.eigenvalues()[6] << "\n";
-		//Eigen::VectorXd total_eigen(*) *besar nya dimensi eigen value diatas
-		//total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6]
-  		//std::cout << "Explained variance:" << eig.eigenvalues()[0].norm()/total_eigen.norm() 
-
-  		
+		Eigen::VectorXd total_eigen(1) 
+		total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6]
+  		std::cout << "Explained variance 1 :" << eig.eigenvalues()[0].norm()/total_eigen.norm() 
+  		std::cout << "Explained variance 2 :" << eig.eigenvalues()[1].norm()/total_eigen.norm() 
+  		std::cout << "Explained variance 3 :" << eig.eigenvalues()[2].norm()/total_eigen.norm() 
+  		std::cout << "Explained variance 4 :" << eig.eigenvalues()[3].norm()/total_eigen.norm() 
+  		std::cout << "Explained variance 5 :" << eig.eigenvalues()[4].norm()/total_eigen.norm() 
+  		std::cout << "Explained variance 6 :" << eig.eigenvalues()[5].norm()/total_eigen.norm() 
+  		std::cout << "Explained variance 7 :" << eig.eigenvalues()[6].norm()/total_eigen.norm() 
   		
   		//================ Video Simulation ================//
 		for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
@@ -301,7 +306,7 @@ int main(int argc,char* argv[]){
 	 		for(int t=1;t<20;t++){ // divide the target to several steps
 				y=bax.GetIK(qcurrent);
 				J=bax.GetJ(qcurrent);
-				yinter = yinit.segment(0,3) + ((t/20)*(ystar-yinit.segment(0,3)))
+				yinter = yinit.segment(0,3) + ((t/20)*(ystar-yinit.segment(0,3)));
 				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 	  			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
 	  			qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(yinter-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
