@@ -138,6 +138,7 @@ int main(int argc,char* argv[]){
     		}
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
+	 		bax.SetJointAngles(qcurrent);
 	 		qprev = qcurrent + eps;
 			y = bax.GetIK(qcurrent); // get end-effector starting position
 			// yprev = y.segment(0,3) + eps;
@@ -221,7 +222,7 @@ int main(int argc,char* argv[]){
 				std::cout << "Run time: " << runtime << "\n";
 				//if (j<1){
 					cost_b(1) = (startingq-qcurrent).squaredNorm();
-					std::cout << "Experiment " << 1 << "Starting pos " << 1 << "Weighted cost:" << cost_b(1) << "\n";
+					std::cout << "Experiment " << 1 << "Starting pos " << 1 << " Weighted cost:" << cost_b(1) << "\n";
 				//}else{
 				//	cost_b(i+3) = (startingq-qcurrent).squaredNorm();
 				//	std::cout << "Experiment " << j+1 << "Starting pos " << i+1 << "Weighted cost:" << cost_b(i+3) << "\n";
