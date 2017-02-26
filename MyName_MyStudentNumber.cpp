@@ -234,6 +234,7 @@ int main(int argc,char* argv[]){
 	 				case 0:
 	 					qcurrent=qstart1; //starting position 1
 	 					bax.SetJointAngles(qstart1);
+	 					e=1e-3;
 	 					break;
 	 				case 1:
 	 					qcurrent=qstart2; //starting position 2
@@ -248,7 +249,7 @@ int main(int argc,char* argv[]){
 				// yprev = y.segment(0,3) + eps;
 				gettimeofday(&time, NULL);
 				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-				while ((y.segment(0,3)-yprev).norm()>e){	 
+				while ((y.segment(0,3)-ystar).norm()>e){	 
 		  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 		  			Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 		  			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
@@ -259,13 +260,13 @@ int main(int argc,char* argv[]){
 		  			bax.SetJointAngles(qcurrent);
 		  			// Update simulation
 	      			bax.AdvanceSimulation();
-					std::cout << "Start pose "<< j+1 << "Target" << i+1 << "\n";
 		 		}
+		 		std::cout << "Start pose "<< j+1 << "Target" << i+1 << "\n";
 		 		gettimeofday(&time, NULL);
 	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 	 			runtime = end_time-start_time;
 				std::cout << "Run time: " << runtime << "\n";
-		 	//pca.row(j+i) = qcurrent.segment(0,7); // put every result pose into 1 matrix
+		 	pca.row(j+i) = qcurrent.segment(0,7); // put every result pose into 1 matrix
 			}
 		}
 		//=========== PCA ===============//
@@ -283,7 +284,7 @@ int main(int argc,char* argv[]){
 		//total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6]
   		//std::cout << "Explained variance:" << eig.eigenvalues()[0].norm()/total_eigen.norm() 
 
-  		*/
+  		
   		/*
   		//================ Video Simulation ================//
 		for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
