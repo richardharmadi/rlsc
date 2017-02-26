@@ -87,15 +87,13 @@ int main(int argc,char* argv[]){
     	// ================== right arm =================//
 		std::cout << "PART A Right Arm \n" ;
 		for(int i=0;i<8;i++){ // Iterate for all 8 target positions, twice for q_comf1 and q_comf2
-    		//if (i<8){
+    		if (i<8){
     			ystar = target.segment(i*3,3);
     			e=1e-3;
-    		//}else {
-    		//	ystar = target.segment((i-8)*3,3);
-			//	if(i==15){
-			//		e=2e-1;
-			//	}
-    		//}	 		
+    		}else {
+    			ystar = target.segment((i-8)*3,3);
+				e=2e-1;
+    		}	 		
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		bax.SetJointAngles(qstart1);
@@ -107,13 +105,13 @@ int main(int argc,char* argv[]){
 				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 				Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-	  		  	qprev = qcurrent;
-	  		  	yprev = bax.GetIK(qprev).segment(0,3);
-	  		  	//if (i<8){
-	   			//	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-	  			//}else{
+	  		  	//qprev = qcurrent;
+	  		  	//yprev = bax.GetIK(qprev).segment(0,3);
+	  		  	if (i<8){
+	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+	  			}else{
 	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
-	  			//}	
+	  			}	
 	  			bax.SetJointAngles(qcurrent);
 	  			y=bax.GetIK(qcurrent); // Get end-effector position
 				// Update simulation
@@ -126,7 +124,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		/*
+		
 		// ================== left arm ===================//
 		std::cout << "PART A Left Arm \n" ;
 		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
@@ -139,24 +137,24 @@ int main(int argc,char* argv[]){
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		bax.SetJointAngles(qcurrent);
-	 		qprev = qcurrent + eps;
+	 		//qprev = qcurrent + eps;
 			y = bax.GetIK(qcurrent); // get end-effector starting position
 			// yprev = y.segment(0,3) + eps;
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-	 		while ((qcurrent-qprev).squaredNorm() > e){
-	 			y=bax.GetIK(qcurrent); // Get end-effector position	
+	 		while((ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)){ 
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  			Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the left arm (a 3x7 block at row 6th and column 7th)
 	  			Eigen::MatrixXd Jinv = Winv*J_pos_left.transpose()*(J_pos_left*Winv*J_pos_left.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-	  			qprev = qcurrent;
-	  			yprev = bax.GetIK(qprev).segment(0,3);
+	  			//qprev = qcurrent;
+	  			//yprev = bax.GetIK(qprev).segment(0,3);
 	  			if (i<8){
 	   				qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf1.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_1
 	 			}else{
 	   				qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf2.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_2
 	  			}	  			
 	  			bax.SetJointAngles(qcurrent);
+	  			y=bax.GetIK(qcurrent); // Get end-effector position	
 	  			// Update simulation
       			bax.AdvanceSimulation(); 
 	 		}
@@ -168,7 +166,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		
+		/*
     	// ================== PART B ==================//
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
