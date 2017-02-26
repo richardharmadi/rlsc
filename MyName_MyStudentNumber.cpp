@@ -86,19 +86,19 @@ int main(int argc,char* argv[]){
 		// ================== PART A ====================//
     	// ================== right arm =================//
 		std::cout << "PART A Right Arm \n" ;
-		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for q_comf1 and q_comf2
-    		if (i<8){
+		for(int i=0;i<8;i++){ // Iterate for all 8 target positions, twice for q_comf1 and q_comf2
+    		//if (i<8){
     			ystar = target.segment(i*3,3);
     			e=1e-3;
-    		}else {
-    			ystar = target.segment((i-8)*3,3);
-				//ystar = target.segment(6*3,3);
-				if(i==15){
-					e=2e-1;
-				}
-    		}	 		
+    		//}else {
+    		//	ystar = target.segment((i-8)*3,3);
+			//	if(i==15){
+			//		e=2e-1;
+			//	}
+    		//}	 		
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
+	 		bax.SetJointAngles(qstart1);
 	 		qprev = qcurrent + eps;
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
 			gettimeofday(&time, NULL);
@@ -109,11 +109,11 @@ int main(int argc,char* argv[]){
 				Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
 	  		  	qprev = qcurrent;
 	  		  	yprev = bax.GetIK(qprev).segment(0,3);
-	  		  	if (i<8){
-	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-	  			}else{
+	  		  	//if (i<8){
+	   			//	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+	  			//}else{
 	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
-	  			}	
+	  			//}	
 	  			bax.SetJointAngles(qcurrent);
 	  			y=bax.GetIK(qcurrent); // Get end-effector position
 				// Update simulation
