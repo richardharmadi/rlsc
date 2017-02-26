@@ -173,7 +173,7 @@ int main(int argc,char* argv[]){
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
 
-	 	//for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
+	 	for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
 	 		for(int i=0;i<3;i++){
 		 		if(i==1){
 		 			qcurrent=qstart1;
@@ -220,13 +220,13 @@ int main(int argc,char* argv[]){
 	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 	 			runtime = end_time-start_time;
 				std::cout << "Run time: " << runtime << "\n";
-				//if (j<1){
-					cost_b(1) = (startingq-qcurrent).squaredNorm();
-					std::cout << "Experiment " << 1 << "Starting pos " << 1 << " Weighted cost:" << cost_b(1) << "\n";
-				//}else{
-				//	cost_b(i+3) = (startingq-qcurrent).squaredNorm();
-				//	std::cout << "Experiment " << j+1 << "Starting pos " << i+1 << "Weighted cost:" << cost_b(i+3) << "\n";
-				//}
+				if (j<1){
+					cost_b(i) = (startingq-qcurrent).squaredNorm();
+					std::cout << "Experiment " << 1 << "Starting pos " << i+1 << " Weighted cost:" << cost_b(i) << "\n";
+				}else{
+					cost_b(i+3) = (startingq-qcurrent).squaredNorm();
+					std::cout << "Experiment " << j+1 << "Starting pos " << i+1 << " Weighted cost:" << cost_b(i+3) << "\n";
+				}
 				// code below for plotting the joint angles updates
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 1 " << qdof1 << "\n";
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 2 " << qdof2 << "\n";
@@ -236,7 +236,7 @@ int main(int argc,char* argv[]){
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 6 " << qdof6 << "\n";
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 7 " << qdof7 << "\n";
 	 		}
-	 	//}
+	 	}
 	 	
 		/*
 		// ================== PART C ==================//
