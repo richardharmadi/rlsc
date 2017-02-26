@@ -165,7 +165,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		/*
+		*/
     	// ================== PART B ==================//
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
@@ -221,7 +221,7 @@ int main(int argc,char* argv[]){
 	 		}
 	 	}
 	 	
-		
+		/*
 		// ================== PART C ==================//
 		std::cout << "PART C \n" ;
 		for(int j=0;j<3;j++){
@@ -296,7 +296,7 @@ int main(int argc,char* argv[]){
   		std::cout << "Explained variance 6 :" << eig.eigenvalues()[5]/total_eigen;
   		std::cout << "Explained variance 7 :" << eig.eigenvalues()[6]/total_eigen;
 
-  		*/
+  		
   		//================ Video Simulation ================//
 
   		std::cout << "Video Simulation\n" ;
@@ -304,7 +304,9 @@ int main(int argc,char* argv[]){
     		ystar = target.segment(i*3,3);
     		e=1e-3; 		
 	 		// Iterating inverse kinematic algorithm
-	 		qcurrent = qstart1; // starting position 1
+	 		if (i<1){
+	 			qcurrent = qstart1; // starting position 1
+	 		}
 	 		bax.SetJointAngles(qstart1);
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
 			while((y.segment(0,3)-ystar).squaredNorm()>e){ 
@@ -316,24 +318,6 @@ int main(int argc,char* argv[]){
 	  			y=bax.GetIK(qcurrent); // Get end-effector position
 				// Update simulation
 			    bax.AdvanceSimulation();			
-	 		}
-		}
-		/*for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
-	 		ystar = target.segment(i*3,3);
-	 		if (i<1){
-				qcurrent = qstart1; // set initial pose
-	 		}
-			yinit = bax.GetIK(qcurrent); // set starting position
-	 		for(int t=1;t<100;t++){ // divide the target to several steps
-				y=bax.GetIK(qcurrent);
-				J=bax.GetJ(qcurrent);
-				yinter = yinit.segment(0,3) + ((t/20)*(ystar-yinit.segment(0,3)));
-				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
-	  			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-	  			qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(yinter-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-	  			bax.SetJointAngles(qcurrent);
-	  			// Update simulation
-      			bax.AdvanceSimulation(); 
 	 		}
 		}*/
 	}
