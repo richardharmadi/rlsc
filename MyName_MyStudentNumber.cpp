@@ -168,7 +168,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		*/
+		
     	// ================== PART B ==================//
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
@@ -223,7 +223,7 @@ int main(int argc,char* argv[]){
 	 		}
 	 	}
 	 	
-		/*
+		*/
 		// ================== PART C ==================//
 		for(int j=0;j<3;j++){
 			for(int i=0;i<8;i++){ // Iterate for all 8 target positions, once for q_comf1
@@ -233,12 +233,16 @@ int main(int argc,char* argv[]){
 		 		switch(j){
 	 				case 0:
 	 					qcurrent=qstart1; //starting position 1
+	 					bax.SetJointAngles(qstart1)
 	 					break;
 	 				case 1:
 	 					qcurrent=qstart2; //starting position 2
+	 					bax.SetJointAngles(qstart2)
 	 					break;
 	 				case 2:
 	 					qcurrent=qstart3; //starting position 3
+	 					bax.SetJointAngles(qstart3)
+	 					break;
 	 			}
 	 			y=bax.GetIK(qcurrent);
 				yprev = y.segment(0,3) + eps;
