@@ -270,8 +270,12 @@ int main(int argc,char* argv[]){
 		 	pca.row(j+i) = qcurrent.segment(0,7); // put every result pose into 1 matrix
 			}
 		}
+		
 		//=========== PCA ===============//
-		Eigen::EigenSolver<Eigen::MatrixXd> eig(pca.transpose());
+		//Eigen::EigenSolver<Eigen::MatrixXd> eig(pca.transpose());
+		MatrixXd centered = pca.rowwise() - pca.colwise().mean();
+		MatrixXd cov = centered.adjoint() * centered; // compute the centered covariance matrix
+		SelfAdjointEigenSolver<MatrixXd> eig(cov);
 		std::cout << "Eigen values:\n" << eig.eigenvalues() << "\n"; // 7 eigenvalues
 		std::cout << "Matrix of Eigen vectors:\n" << eig.eigenvectors() << "\n";
 		std::cout << "Eigen value 1: " << eig.eigenvalues()[0] << "\n";
@@ -286,7 +290,7 @@ int main(int argc,char* argv[]){
   		//std::cout << "Explained variance:" << eig.eigenvalues()[0].norm()/total_eigen.norm() 
 
   		
-  		/*
+  		
   		//================ Video Simulation ================//
 		for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
 	 		ystar = target.segment(i*3,3);
@@ -305,7 +309,7 @@ int main(int argc,char* argv[]){
 	  			// Update simulation
       			bax.AdvanceSimulation(); 
 	 		}
-		}*/
+		}
 	}
   	// Stop simulation and close connection
   	bax.StopSimulation();
