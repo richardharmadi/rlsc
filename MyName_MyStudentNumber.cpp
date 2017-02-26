@@ -97,9 +97,9 @@ int main(int argc,char* argv[]){
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
-	 		yprev = y.segment(0,3) + eps;
 			time(&start_time);
-			while ((y.segment(0,3)-yprev).norm()>e){		
+			while ((qcurrent-qprev).squaredNorm()>e){
+				y=bax.GetIK(qcurrent); // Get end-effector position 
 				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 				Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
@@ -110,7 +110,6 @@ int main(int argc,char* argv[]){
 	  			}else{
 	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
 	  			}	
-	  			y=bax.GetIK(qcurrent); // Get end-effector position  
 	  			bax.SetJointAngles(qcurrent);
 				// Update simulation
 			    bax.AdvanceSimulation();			
