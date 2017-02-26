@@ -53,6 +53,7 @@ int main(int argc,char* argv[]){
 	Eigen::VectorXd eps = Eigen::VectorXd::Ones(3)*0.5;
 	Eigen::VectorXd costright_a(32);
 	Eigen::VectorXd costleft_a(32);
+	Eigen::VectorXd yprev(3);
 
 	//std::chrono::time_point<std::chrono::system_clock> start, end;
 	
@@ -82,7 +83,7 @@ int main(int argc,char* argv[]){
 
 		// ================== PART A ====================//
     	// ================== right arm =================//
-		/*
+		
 		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for q_comf1 and q_comf2
     		if (i<8){
     			ystar = target.segment(i*3,3);
@@ -95,10 +96,9 @@ int main(int argc,char* argv[]){
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
-	 		yprev = y + eps;
+	 		yprev = y.segment(0,3) + eps;
 			time(&start_time);
 			while ((y-yprev).norm()>e){
-				qprev = qcurrent;
 			  	y=bax.GetIK(qcurrent); // Get end-effector position
 				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
@@ -118,7 +118,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		
+		/*
 		// ================== left arm ===================//
 		for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
 	 		if (i<8){
@@ -131,11 +131,11 @@ int main(int argc,char* argv[]){
 	 		qcurrent = qstart1; // starting position 1
 	 		// qprev = qcurrent + eps;
 			y = bax.GetIK(qcurrent); // get end-effector starting position
-			yprev = y + eps;
+			yprev = y.segment(0,3) + eps;
 			time(&start_time);
 	 		//while ((qcurrent-qprev).norm() > e){
 	  		while((y-yprev).norm()>e){
-	  			qprev = qcurrent;
+	  			// qprev = qcurrent;
 	  			y=bax.GetIK(qcurrent); // Get end-effector position
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  			Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the left arm (a 3x7 block at row 6th and column 7th)
@@ -177,11 +177,11 @@ int main(int argc,char* argv[]){
 	 			}
 				// Iterating inverse kinematic algorithm
 				y = bax.GetIK(qcurrent); // get end-effector starting position
-	 			yprev = y + eps;
+	 			yprev = y.segment(0,3) + eps;
 				time(&start_time);
 				//start = std::chrono::system_clock::now();
 				while ((y-yprev).norm()>e){
-					qprev = qcurrent;
+					//qprev = qcurrent;
 					//qdof1 << qdof1,qprev.segment(0,1); // append array
 					//qdof2 << qdof2,qprev.segment(1,1);
 					//qdof3 << qdof3,qprev.segment(2,1);
@@ -244,10 +244,9 @@ int main(int argc,char* argv[]){
 	 				case 2:
 	 					qcurrent=qstart3; //starting position 3
 	 			}
-				yprev = y + eps;
+				yprev = y.segment(0,3) + eps;
 				time(&start_time);
 				while ((y-yprev).norm()>e){
-		  			qprev = qcurrent;
 		  			y=bax.GetIK(qcurrent); // Get end-effector position
 		  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 		  			Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
