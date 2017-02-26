@@ -6,12 +6,12 @@
  */
 
 #include "BaxterTools.h"
-#include <time.h>
+#include <sys/time.h>
 
 int main(int argc,char* argv[]){ 
 	BaxterTools bax; // Create the robot interface object
   	
-  	time_t start_time,end_time;
+  	timeval time;
   	// Connect to the simulator
   	if(argc==2){
     	bax.Connect(argv[1]);
@@ -73,6 +73,7 @@ int main(int argc,char* argv[]){
 	// Loop until 'q' gets pressed
 	char key=0;
 	float e=1e-3;
+	long start_time,end_time;
 	double runtime;
 	 
 	while(key!='q'){		
@@ -100,7 +101,8 @@ int main(int argc,char* argv[]){
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
-			time(&start_time);
+			gettimeofday(&time, NULL);
+			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 			while ((qcurrent-qprev).squaredNorm()>e){
 				y=bax.GetIK(qcurrent); // Get end-effector position 
 				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
@@ -117,8 +119,10 @@ int main(int argc,char* argv[]){
 				// Update simulation
 			    bax.AdvanceSimulation();			
 	 		}
-	 		time(&end_time);
-			runtime = difftime(end_time,start_time);
+	 		gettimeofday(&time, NULL);
+	 		end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+			//runtime = difftime(end_time,start_time);
+	 		runtime = end_time-start_time;
 	 		costright_a(i) = (qstart1-qcurrent).squaredNorm();
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
