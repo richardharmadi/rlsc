@@ -85,7 +85,7 @@ int main(int argc,char* argv[]){
 
 		// ================== PART A ====================//
     	// ================== right arm =================//
-		
+		std::cout << "PART A Right Arm \n" ;
 		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for q_comf1 and q_comf2
     		if (i<8){
     			ystar = target.segment(i*3,3);
@@ -96,8 +96,7 @@ int main(int argc,char* argv[]){
 				if(i==15){
 					e=2e-1;
 				}
-    		}
-	 		
+    		}	 		
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
@@ -127,23 +126,25 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		/* 
+		
 		// ================== left arm ===================//
+		std::cout << "PART A Left Arm \n" ;
 		for(int i=0;i<16;i++) // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
+	 		e=1e-3
 	 		if (i<8){
     			ystar = target.segment(i*3,3);
     		}else {
     			ystar = target.segment((i-8)*3,3);
     		}
-	 		
 	 		// Iterating inverse kinematic algorithm
 	 		qcurrent = qstart1; // starting position 1
 	 		// qprev = qcurrent + eps;
 			y = bax.GetIK(qcurrent); // get end-effector starting position
 			yprev = y.segment(0,3) + eps;
-			time(&start_time);
-	 		//while ((qcurrent-qprev).norm() > e){
-	  		while((y.segment(0,3)-yprev).norm()>e){
+			gettimeofday(&time, NULL);
+			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+	 		while ((qcurrent-qprev).norm() > e){
+	 			y=bax.GetIK(qcurrent); // Get end-effector position	
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  			Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the left arm (a 3x7 block at row 6th and column 7th)
 	  			Eigen::MatrixXd Jinv = Winv*J_pos_left.transpose()*(J_pos_left*Winv*J_pos_left.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
@@ -154,18 +155,19 @@ int main(int argc,char* argv[]){
 	 			}else{
 	   				qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf2.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_2
 	  			}	  			
-	  			y=bax.GetIK(qcurrent); // Get end-effector position	  
 	  			bax.SetJointAngles(qcurrent);
 	  			// Update simulation
       			bax.AdvanceSimulation(); 
 	 		}
-	 		time(&end_time);
-			runtime = difftime(end_time,start_time);
+	 		gettimeofday(&time, NULL);
+	 		end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+			//runtime = difftime(end_time,start_time);
+	 		runtime = end_time-start_time;
 	 		costleft_a(i) = (qstart1-qcurrent).squaredNorm();
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		*/
+		
 		/*
     	// ================== PART B ==================//
 	 	ystar = target.segment(0,3);
