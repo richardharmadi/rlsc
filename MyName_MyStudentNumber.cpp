@@ -262,7 +262,7 @@ int main(int argc,char* argv[]){
 		  			// Update simulation
 	      			bax.AdvanceSimulation();
 		 		}
-		 		std::cout << "Start pose "<< j+1 << "Target" << i+1 << "\n";
+		 		std::cout << "Start pose "<< j+1 << "Target" << i+1 << qcurrent.segment(0,7) << "\n";
 		 		gettimeofday(&time, NULL);
 	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 	 			runtime = end_time-start_time;
@@ -271,16 +271,16 @@ int main(int argc,char* argv[]){
 			}
 		}
 		//=========== PCA ===============//
-		//Eigen::EigenSolver<Eigen::MatrixXd> eig(pca.transpose());
-		//std::cout << "Eigen values:\n" << eig.eigenvalues() << "\n"; // 7 eigenvalues
-		//std::cout << "Matrix of Eigen vectors:\n" << eig.eigenvectors() << "\n";
-		//std::cout << "Eigen value 1: " << eig.eigenvalues()[0] << "\n";
-		//std::cout << "Eigen value 2: " << eig.eigenvalues()[1] << "\n";
-		//std::cout << "Eigen value 3: " << eig.eigenvalues()[2] << "\n";
-		//std::cout << "Eigen value 4: " << eig.eigenvalues()[3] << "\n";
-		//std::cout << "Eigen value 5: " << eig.eigenvalues()[4] << "\n";
-		//std::cout << "Eigen value 6: " << eig.eigenvalues()[5] << "\n";
-		//std::cout << "Eigen value 7: " << eig.eigenvalues()[6] << "\n";
+		Eigen::EigenSolver<Eigen::MatrixXd> eig(pca.transpose());
+		std::cout << "Eigen values:\n" << eig.eigenvalues() << "\n"; // 7 eigenvalues
+		std::cout << "Matrix of Eigen vectors:\n" << eig.eigenvectors() << "\n";
+		std::cout << "Eigen value 1: " << eig.eigenvalues()[0] << "\n";
+		std::cout << "Eigen value 2: " << eig.eigenvalues()[1] << "\n";
+		std::cout << "Eigen value 3: " << eig.eigenvalues()[2] << "\n";
+		std::cout << "Eigen value 4: " << eig.eigenvalues()[3] << "\n";
+		std::cout << "Eigen value 5: " << eig.eigenvalues()[4] << "\n";
+		std::cout << "Eigen value 6: " << eig.eigenvalues()[5] << "\n";
+		std::cout << "Eigen value 7: " << eig.eigenvalues()[6] << "\n";
 		//Eigen::VectorXd total_eigen(*) *besar nya dimensi eigen value diatas
 		//total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6]
   		//std::cout << "Explained variance:" << eig.eigenvalues()[0].norm()/total_eigen.norm() 
