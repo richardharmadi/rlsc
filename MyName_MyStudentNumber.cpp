@@ -82,7 +82,7 @@ int main(int argc,char* argv[]){
 	
 		// Get target positions
     	bax.GetTargets(target);
-
+    	/*
 		// ================== PART A ====================//
     	// ================== right arm =================//
 		std::cout << "PART A Right Arm \n" ;
@@ -168,7 +168,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costleft_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		
+		*/
     	// ================== PART B ==================//
 	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
@@ -194,24 +194,17 @@ int main(int argc,char* argv[]){
 				gettimeofday(&time, NULL);
 				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 				while ((qcurrent-qprev).squaredNorm()>e){
-					//qdof1 << qdof1,qprev.segment(0,1); // append array
-					//qdof2 << qdof2,qprev.segment(1,1);
-					//qdof3 << qdof3,qprev.segment(2,1);
-					//qdof4 << qdof4,qprev.segment(3,1);
-					//qdof5 << qdof5,qprev.segment(4,1);
-					//qdof6 << qdof6,qprev.segment(5,1);
-					//qdof7 << qdof7,qprev.segment(6,1);
 					y=bax.GetIK(qcurrent); // Get end-effector position	 
 					J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 					Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 					Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
 					qprev = qcurrent;
 					yprev = bax.GetIK(qprev).segment(0,3);
-					//if (j<1){
+					if (j<1){
 						qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-					//}else{
-				    //	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
-					//} 
+					}else{
+				    	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
+					} 
 					bax.SetJointAngles(qcurrent);
 					// Update simulation
 			    	bax.AdvanceSimulation(); 
@@ -227,14 +220,6 @@ int main(int argc,char* argv[]){
 					cost_b(i+3) = (startingq-qcurrent).squaredNorm();
 					std::cout << "Experiment " << j+1 << "Starting pos " << i+1 << " Weighted cost:" << cost_b(i+3) << "\n";
 				}
-				// code below for plotting the joint angles updates
-	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 1 " << qdof1 << "\n";
-	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 2 " << qdof2 << "\n";
-	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 3 " << qdof3 << "\n";
-	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 4 " << qdof4 << "\n";
-	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 5 " << qdof5 << "\n";
-	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 6 " << qdof6 << "\n";
-	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 7 " << qdof7 << "\n";
 	 		}
 	 	}
 	 	
