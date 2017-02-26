@@ -82,7 +82,7 @@ int main(int argc,char* argv[]){
 	
 		// Get target positions
     	bax.GetTargets(target);
-    	/*
+    	
 		// ================== PART A ====================//
     	// ================== right arm =================//
 		std::cout << "PART A Right Arm \n" ;
@@ -103,8 +103,7 @@ int main(int argc,char* argv[]){
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-			while ((qcurrent-qprev).squaredNorm()>e){
-				y=bax.GetIK(qcurrent); // Get end-effector position 
+			while((ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)){ 
 				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 				Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
@@ -116,6 +115,7 @@ int main(int argc,char* argv[]){
 	   				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf2.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_2
 	  			}	
 	  			bax.SetJointAngles(qcurrent);
+	  			y=bax.GetIK(qcurrent); // Get end-effector position
 				// Update simulation
 			    bax.AdvanceSimulation();			
 	 		}
@@ -126,7 +126,7 @@ int main(int argc,char* argv[]){
 	 		std::cout << "Weighted cost" << i << ": " << costright_a(i) << "\n";
 	 		std::cout << "Run time: " << runtime << "\n";
 		}
-		
+		/*
 		// ================== left arm ===================//
 		std::cout << "PART A Left Arm \n" ;
 		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
@@ -223,7 +223,7 @@ int main(int argc,char* argv[]){
 	 		}
 	 	}
 	 	
-		*/
+		
 		// ================== PART C ==================//
 		for(int j=0;j<3;j++){
 			for(int i=0;i<8;i++){ // Iterate for all 8 target positions, once for q_comf1
@@ -239,6 +239,9 @@ int main(int argc,char* argv[]){
 	 				case 1:
 	 					qcurrent=qstart2; //starting position 2
 	 					bax.SetJointAngles(qstart2);
+	 					if (i==7){
+	 						e=1e-2;
+	 					}
 	 					break;
 	 				case 2:
 	 					qcurrent=qstart3; //starting position 3
