@@ -187,22 +187,22 @@ int main(int argc,char* argv[]){
 		 		}
 		 			
 				// Iterating inverse kinematic algorithm
-	 			qprev = qcurrent + eps;
+	 			// qprev = qcurrent + eps;
 				gettimeofday(&time, NULL);
 				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 				while((y.segment(0,3)-ystar).squaredNorm()>e){ 
-					y=bax.GetIK(qcurrent); // Get end-effector position	 
 					J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 					Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 					Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-					qprev = qcurrent;
-					yprev = bax.GetIK(qprev).segment(0,3);
+					// qprev = qcurrent;
+					// yprev = bax.GetIK(qprev).segment(0,3);
 					if (j<1){
 						qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
 					}else{
 				    	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
 					} 
 					bax.SetJointAngles(qcurrent);
+					y=bax.GetIK(qcurrent); // Get end-effector position	 
 					// Update simulation
 			    	bax.AdvanceSimulation(); 
 				}
@@ -273,9 +273,9 @@ int main(int argc,char* argv[]){
 		
 		//=========== PCA ===============//
 		//Eigen::EigenSolver<Eigen::MatrixXd> eig(pca.transpose());
-		MatrixXd centered = pca.rowwise() - pca.colwise().mean();
-		MatrixXd cov = centered.adjoint() * centered; // compute the centered covariance matrix
-		SelfAdjointEigenSolver<MatrixXd> eig(cov);
+		Eigen::MatrixXd centered = pca.rowwise() - pca.colwise().mean();
+		Eigen::MatrixXd cov = centered.adjoint() * centered; // compute the centered covariance matrix
+		Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig(cov);
 		std::cout << "Eigen values:\n" << eig.eigenvalues() << "\n"; // 7 eigenvalues
 		std::cout << "Matrix of Eigen vectors:\n" << eig.eigenvectors() << "\n";
 		std::cout << "Eigen value 1: " << eig.eigenvalues()[0] << "\n";
