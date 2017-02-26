@@ -101,7 +101,7 @@ int main(int argc,char* argv[]){
 	 		y = bax.GetIK(qcurrent); // get end-effector starting position
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-			while((ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)){ 
+			while((ystar(0)-y(0)>e)&&(ystar(1)-y(1)>e)&&(ystar(2)-y(2)>e)){ 
 				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
 				Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
@@ -128,7 +128,7 @@ int main(int argc,char* argv[]){
 		// ================== left arm ===================//
 		std::cout << "PART A Left Arm \n" ;
 		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for both q_comf1 and q_comf2{
-	 		e=1e-1;
+	 		e=1e-3;
 	 		if (i<8){
     			ystar = target.segment(i*3,3);
     		}else {
@@ -142,16 +142,16 @@ int main(int argc,char* argv[]){
 			// yprev = y.segment(0,3) + eps;
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-	 		while((ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)&&(ystar(0)-y(0)>e)){ 
+	 		while((ystar(6)-y(6)>e)&&(ystar(7)-y(7)>e)&&(ystar(8)-y(8)>e)){ 
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  			Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the left arm (a 3x7 block at row 6th and column 7th)
 	  			Eigen::MatrixXd Jinv = Winv*J_pos_left.transpose()*(J_pos_left*Winv*J_pos_left.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
 	  			//qprev = qcurrent;
 	  			//yprev = bax.GetIK(qprev).segment(0,3);
 	  			if (i<8){
-	   				qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf1.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_1
+	   				qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(6,3))+(I-Jinv*J_pos_left)*(q_comf1.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_1
 	 			}else{
-	   				qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_left)*(q_comf2.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_2
+	   				qcurrent.segment(9,7) = qcurrent.segment(9,7) + Jinv*(ystar-y.segment(6,3))+(I-Jinv*J_pos_left)*(q_comf2.segment(9,7)-qcurrent.segment(9,7)); //use qcomf_2
 	  			}	  			
 	  			bax.SetJointAngles(qcurrent);
 	  			y=bax.GetIK(qcurrent); // Get end-effector position	
