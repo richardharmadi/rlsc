@@ -286,15 +286,16 @@ int main(int argc,char* argv[]){
 		std::cout << "Eigen value 5: " << eig.eigenvalues()[4] << "\n";
 		std::cout << "Eigen value 6: " << eig.eigenvalues()[5] << "\n";
 		std::cout << "Eigen value 7: " << eig.eigenvalues()[6] << "\n";
-		Eigen::VectorXd total_eigen(1) 
-		total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6]
-  		std::cout << "Explained variance 1 :" << eig.eigenvalues()[0].norm()/total_eigen.norm() 
-  		std::cout << "Explained variance 2 :" << eig.eigenvalues()[1].norm()/total_eigen.norm() 
-  		std::cout << "Explained variance 3 :" << eig.eigenvalues()[2].norm()/total_eigen.norm() 
-  		std::cout << "Explained variance 4 :" << eig.eigenvalues()[3].norm()/total_eigen.norm() 
-  		std::cout << "Explained variance 5 :" << eig.eigenvalues()[4].norm()/total_eigen.norm() 
-  		std::cout << "Explained variance 6 :" << eig.eigenvalues()[5].norm()/total_eigen.norm() 
-  		std::cout << "Explained variance 7 :" << eig.eigenvalues()[6].norm()/total_eigen.norm() 
+		double total_eigen; 
+		total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6];
+  		std::cout << "Explained variance 1 :" << eig.eigenvalues()[0]/total_eigen
+  		std::cout << "Explained variance 2 :" << eig.eigenvalues()[1]/total_eigen
+  		std::cout << "Explained variance 3 :" << eig.eigenvalues()[2]/total_eigen
+  		std::cout << "Explained variance 4 :" << eig.eigenvalues()[3]/total_eigen  
+  		std::cout << "Explained variance 5 :" << eig.eigenvalues()[4]/total_eigen
+  		std::cout << "Explained variance 6 :" << eig.eigenvalues()[5]/total_eigen 
+  		std::cout << "Explained variance 7 :" << eig.eigenvalues()[6]/total_eigen
+
   		
   		//================ Video Simulation ================//
 		for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
