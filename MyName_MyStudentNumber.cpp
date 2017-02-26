@@ -169,123 +169,59 @@ int main(int argc,char* argv[]){
 		}
 		
     	// ================== PART B ==================//
-	 	std::cout << "PART B Redundancy Resolution Starting Pose 1 \n" ;
+	 	std::cout << "PART B \n" ;
 	 	ystar = target.segment(0,3);
 
-		qcurrent=qstart1;
-		startingq=qstart1;
-		// Iterating inverse kinematic algorithm
-		qprev = qcurrent + eps;
-		gettimeofday(&time, NULL);
-		start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-		while ((qcurrent-qprev).squaredNorm()>e){
-			//qdof1 << qdof1,qprev.segment(0,1); // append array
-			//qdof2 << qdof2,qprev.segment(1,1);
-			//qdof3 << qdof3,qprev.segment(2,1);
-			//qdof4 << qdof4,qprev.segment(3,1);
-			//qdof5 << qdof5,qprev.segment(4,1);
-			//qdof6 << qdof6,qprev.segment(5,1);
-			//qdof7 << qdof7,qprev.segment(6,1);
-			y=bax.GetIK(qcurrent); // Get end-effector position	 
-			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
-			Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
-			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-			qprev = qcurrent;
-			yprev = bax.GetIK(qprev).segment(0,3);
-			//if (j<1){
-				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-			//}else{
-		    //	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
-			//} 
-			bax.SetJointAngles(qcurrent);
-			// Update simulation
-	    	bax.AdvanceSimulation(); 
-		}
-		gettimeofday(&time, NULL);
-		end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-		runtime = end_time-start_time;
-		std::cout << "Run time: " << runtime << "\n";
-		cost_b(0) = (startingq-qcurrent).squaredNorm();
-		std::cout << "Experiment " << 1 << "Starting pose " << 1 << "Weighted cost:" << cost_b(0) << "\n";
-
-		std::cout << "PART B Redundancy Resolution Starting Pose 2 \n" ;
-	 	ystar = target.segment(0,3);
-
-		qcurrent=qstart1;
-		startingq=qstart1;
-		// Iterating inverse kinematic algorithm
-		qprev = qcurrent + eps;
-		gettimeofday(&time, NULL);
-		start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-		while ((qcurrent-qprev).squaredNorm()>e){
-			//qdof1 << qdof1,qprev.segment(0,1); // append array
-			//qdof2 << qdof2,qprev.segment(1,1);
-			//qdof3 << qdof3,qprev.segment(2,1);
-			//qdof4 << qdof4,qprev.segment(3,1);
-			//qdof5 << qdof5,qprev.segment(4,1);
-			//qdof6 << qdof6,qprev.segment(5,1);
-			//qdof7 << qdof7,qprev.segment(6,1);
-			y=bax.GetIK(qcurrent); // Get end-effector position	 
-			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
-			Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
-			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-			qprev = qcurrent;
-			yprev = bax.GetIK(qprev).segment(0,3);
-			//if (j<1){
-				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-			//}else{
-		    //	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
-			//} 
-			bax.SetJointAngles(qcurrent);
-			// Update simulation
-	    	bax.AdvanceSimulation(); 
-		}
-		gettimeofday(&time, NULL);
-		end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-		runtime = end_time-start_time;
-		std::cout << "Run time: " << runtime << "\n";
-		cost_b(1) = (startingq-qcurrent).squaredNorm();
-		std::cout << "Experiment " << 1 << "Starting pose " << 2 << "Weighted cost:" << cost_b(1) << "\n";
-		
-		std::cout << "PART B Redundancy Resolution Starting Pose 3 \n" ;
-	 	ystar = target.segment(0,3);
-
-		qcurrent=qstart3;
-		startingq=qstart3;
-		// Iterating inverse kinematic algorithm
-		qprev = qcurrent + eps;
-		gettimeofday(&time, NULL);
-		start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-		while ((qcurrent-qprev).squaredNorm()>e){
-			//qdof1 << qdof1,qprev.segment(0,1); // append array
-			//qdof2 << qdof2,qprev.segment(1,1);
-			//qdof3 << qdof3,qprev.segment(2,1);
-			//qdof4 << qdof4,qprev.segment(3,1);
-			//qdof5 << qdof5,qprev.segment(4,1);
-			//qdof6 << qdof6,qprev.segment(5,1);
-			//qdof7 << qdof7,qprev.segment(6,1);
-			y=bax.GetIK(qcurrent); // Get end-effector position	 
-			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
-			Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
-			Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
-			qprev = qcurrent;
-			yprev = bax.GetIK(qprev).segment(0,3);
-			//if (j<1){
-				qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
-			//}else{
-		    //	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
-			//} 
-			bax.SetJointAngles(qcurrent);
-			// Update simulation
-	    	bax.AdvanceSimulation(); 
-		}
-		gettimeofday(&time, NULL);
-		end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-		runtime = end_time-start_time;
-		std::cout << "Run time: " << runtime << "\n";
-		cost_b(2) = (startingq-qcurrent).squaredNorm();
-		std::cout << "Experiment " << 1 << "Starting pose " << 3 << "Weighted cost:" << cost_b(2) << "\n";
-
+	 	//for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
+	 		for(int i=0;i<3;i++){
+		 		if(i==1){
+		 			qcurrent=qstart1;
+		 			startingq=qstart1;
+		 			bax.SetJointAngles(qcurrent);
+		 		}else if (i==2){
+		 			qcurrent=qstart2;
+		 			startingq=qstart2;
+		 			bax.SetJointAngles(qcurrent);
+		 		}else (i==3){
+		 			qcurrent=qstart3;
+		 			startingq=qstart3;
+		 			bax.SetJointAngles(qcurrent);
+		 		}
+		 			
+				// Iterating inverse kinematic algorithm
+	 			qprev = qcurrent + eps;
+				gettimeofday(&time, NULL);
+				start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+				while ((qcurrent-qprev).squaredNorm()>e){
+					//qdof1 << qdof1,qprev.segment(0,1); // append array
+					//qdof2 << qdof2,qprev.segment(1,1);
+					//qdof3 << qdof3,qprev.segment(2,1);
+					//qdof4 << qdof4,qprev.segment(3,1);
+					//qdof5 << qdof5,qprev.segment(4,1);
+					//qdof6 << qdof6,qprev.segment(5,1);
+					//qdof7 << qdof7,qprev.segment(6,1);
+					y=bax.GetIK(qcurrent); // Get end-effector position	 
+					J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
+					Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
+					Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+					qprev = qcurrent;
+					yprev = bax.GetIK(qprev).segment(0,3);
+					//if (j<1){
+						qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7)); //use qcomf_1
+					//}else{
+				    //	qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3)); // use minimum norm for redundancy resolution
+					//} 
+					bax.SetJointAngles(qcurrent);
+					// Update simulation
+			    	bax.AdvanceSimulation(); 
+				}
+				gettimeofday(&time, NULL);
+	 			end_time = (time.tv_sec *1000) +(time.tv_usec/1000);
+	 			runtime = end_time-start_time;
+				std::cout << "Run time: " << runtime << "\n";
+				//if (j<1){
+					cost_b(1) = (startingq-qcurrent).squaredNorm();
+					std::cout << "Experiment " << 1 << "Starting pos " << 1 << "Weighted cost:" << cost_b(1) << "\n";
 				//}else{
 				//	cost_b(i+3) = (startingq-qcurrent).squaredNorm();
 				//	std::cout << "Experiment " << j+1 << "Starting pos " << i+1 << "Weighted cost:" << cost_b(i+3) << "\n";
