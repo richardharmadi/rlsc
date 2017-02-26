@@ -142,7 +142,7 @@ int main(int argc,char* argv[]){
 			// yprev = y.segment(0,3) + eps;
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
-	 		while((ystar(6)-y(6)>e)&&(ystar(7)-y(7)>e)&&(ystar(8)-y(8)>e)){ 
+	 		while((ystar(0)-y(6)>e)&&(ystar(1)-y(7)>e)&&(ystar(2)-y(8)>e)){ 
 	  			J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
 	  			Eigen::MatrixXd J_pos_left = J.block(6,7,3,7); // Get position Jacobian of the left arm (a 3x7 block at row 6th and column 7th)
 	  			Eigen::MatrixXd Jinv = Winv*J_pos_left.transpose()*(J_pos_left*Winv*J_pos_left.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
