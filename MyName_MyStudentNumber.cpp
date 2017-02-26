@@ -89,9 +89,9 @@ int main(int argc,char* argv[]){
     		if (i<8){
     			ystar = target.segment(i*3,3);
     		}else {
-    			//ystar = target.segment((i-8)*3,3);
-				ystar = target.segment(6*3,3);
-				e=0.5;
+    			ystar = target.segment((i-8)*3,3);
+				//ystar = target.segment(6*3,3);
+				e=1e-3;
     		}
 	 		
 	 		// Iterating inverse kinematic algorithm
@@ -290,8 +290,10 @@ int main(int argc,char* argv[]){
   		//================ Video Simulation ================//
 		for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
 	 		ystar = target.segment(i*3,3);
-	 		qcurrent = qstart1; // set initial pose
-			yinit = bax.GetIK(qstart1); // set starting position
+	 		if (i<1){
+				qcurrent = qstart1; // set initial pose
+	 		}
+			yinit = bax.GetIK(qcurrent); // set starting position
 	 		for(int t=1;t<20;t++){ // divide the target to several steps
 				y=bax.GetIK(qcurrent);
 				J=bax.GetJ(qcurrent);
