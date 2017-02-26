@@ -82,7 +82,7 @@ int main(int argc,char* argv[]){
 	
 		// Get target positions
     	bax.GetTargets(target);
-    	
+    	/*
 		// ================== PART A ====================//
     	// ================== right arm =================//
 		std::cout << "PART A Right Arm \n" ;
@@ -185,7 +185,7 @@ int main(int argc,char* argv[]){
 		 			startingq=qstart3;
 		 			bax.SetJointAngles(qcurrent);
 		 		}
-		 			
+		 		std::cout << "working fine 1";	
 				// Iterating inverse kinematic algorithm
 	 			// qprev = qcurrent + eps;
 				gettimeofday(&time, NULL);
@@ -220,7 +220,7 @@ int main(int argc,char* argv[]){
 				}
 	 		}
 	 	}
-	 	*/
+	 	
 		
 		// ================== PART C ==================//
 		std::cout << "PART C \n" ;
@@ -288,23 +288,43 @@ int main(int argc,char* argv[]){
 		std::cout << "Eigen value 7: " << eig.eigenvalues()[6] << "\n";
 		double total_eigen; 
 		total_eigen = eig.eigenvalues()[0] + eig.eigenvalues()[1] + eig.eigenvalues()[2] + eig.eigenvalues()[3] + eig.eigenvalues()[4] + eig.eigenvalues()[5] + eig.eigenvalues()[6];
-  		std::cout << "Explained variance 1 :" << eig.eigenvalues()[0]/total_eigen
-  		std::cout << "Explained variance 2 :" << eig.eigenvalues()[1]/total_eigen
-  		std::cout << "Explained variance 3 :" << eig.eigenvalues()[2]/total_eigen
-  		std::cout << "Explained variance 4 :" << eig.eigenvalues()[3]/total_eigen  
-  		std::cout << "Explained variance 5 :" << eig.eigenvalues()[4]/total_eigen
-  		std::cout << "Explained variance 6 :" << eig.eigenvalues()[5]/total_eigen 
-  		std::cout << "Explained variance 7 :" << eig.eigenvalues()[6]/total_eigen
+  		std::cout << "Explained variance 1 :" << eig.eigenvalues()[0]/total_eigen;
+  		std::cout << "Explained variance 2 :" << eig.eigenvalues()[1]/total_eigen;
+  		std::cout << "Explained variance 3 :" << eig.eigenvalues()[2]/total_eigen;
+  		std::cout << "Explained variance 4 :" << eig.eigenvalues()[3]/total_eigen; 
+  		std::cout << "Explained variance 5 :" << eig.eigenvalues()[4]/total_eigen;
+  		std::cout << "Explained variance 6 :" << eig.eigenvalues()[5]/total_eigen;
+  		std::cout << "Explained variance 7 :" << eig.eigenvalues()[6]/total_eigen;
 
-  		
+  		*/
   		//================ Video Simulation ================//
-		for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
+
+  		std::cout << "Video Simulation\n" ;
+		for(int i=0;i<8;i++){ // Iterate for all 8 target positions, twice for q_comf1 and q_comf2
+    		ystar = target.segment(i*3,3);
+    		e=1e-3; 		
+	 		// Iterating inverse kinematic algorithm
+	 		qcurrent = qstart1; // starting position 1
+	 		bax.SetJointAngles(qstart1);
+	 		y = bax.GetIK(qcurrent); // get end-effector starting position
+			while((y.segment(0,3)-ystar).squaredNorm()>e){ 
+				J=bax.GetJ(qcurrent);  // Get Jacobian of the end effector
+				Eigen::MatrixXd J_pos_right = J.block(0,0,3,7); // Get position Jacobian of the right arm (a 3x7 block at row 0 and column 0)
+				Eigen::MatrixXd Jinv = Winv*J_pos_right.transpose()*(J_pos_right*Winv*J_pos_right.transpose()+Cinv).inverse(); // Compute Inverse Jacobian
+	   			qcurrent.segment(0,7) = qcurrent.segment(0,7) + Jinv*(ystar-y.segment(0,3))+(I-Jinv*J_pos_right)*(q_comf1.segment(0,7)-qcurrent.segment(0,7))/6; //use qcomf_1
+	  			bax.SetJointAngles(qcurrent);
+	  			y=bax.GetIK(qcurrent); // Get end-effector position
+				// Update simulation
+			    bax.AdvanceSimulation();			
+	 		}
+		}
+		/*for(int i=0;i<8;i++){ // Iterate for all 8 target positions 
 	 		ystar = target.segment(i*3,3);
 	 		if (i<1){
 				qcurrent = qstart1; // set initial pose
 	 		}
 			yinit = bax.GetIK(qcurrent); // set starting position
-	 		for(int t=1;t<20;t++){ // divide the target to several steps
+	 		for(int t=1;t<100;t++){ // divide the target to several steps
 				y=bax.GetIK(qcurrent);
 				J=bax.GetJ(qcurrent);
 				yinter = yinit.segment(0,3) + ((t/20)*(ystar-yinit.segment(0,3)));
@@ -315,7 +335,7 @@ int main(int argc,char* argv[]){
 	  			// Update simulation
       			bax.AdvanceSimulation(); 
 	 		}
-		}
+		}*/
 	}
   	// Stop simulation and close connection
   	bax.StopSimulation();
