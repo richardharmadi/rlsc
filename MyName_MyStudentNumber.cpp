@@ -88,10 +88,13 @@ int main(int argc,char* argv[]){
 		for(int i=0;i<16;i++){ // Iterate for all 8 target positions, twice for q_comf1 and q_comf2
     		if (i<8){
     			ystar = target.segment(i*3,3);
+    			e=1e-3;
     		}else {
     			ystar = target.segment((i-8)*3,3);
 				//ystar = target.segment(6*3,3);
-				e=1e-3;
+				if(i==15){
+					e=2e-1;
+				}
     		}
 	 		
 	 		// Iterating inverse kinematic algorithm
