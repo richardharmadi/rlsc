@@ -50,7 +50,7 @@ int main(int argc,char* argv[]){
 	
 	Eigen::VectorXd qcurrent(18); // Current joint angle
 	Eigen::VectorXd ystar(3); // Current target
-	Eigen::VectorXd eps = Eigen::VectorXd::Ones(3)*0.5;
+	Eigen::VectorXd eps = Eigen::VectorXd::Ones(18)*0.5;
 	Eigen::VectorXd costright_a(32);
 	Eigen::VectorXd costleft_a(32);
 	Eigen::VectorXd yprev(3);
@@ -140,7 +140,7 @@ int main(int argc,char* argv[]){
 	 		qcurrent = qstart1; // starting position 1
 	 		qprev = qcurrent + eps;
 			y = bax.GetIK(qcurrent); // get end-effector starting position
-			yprev = y.segment(0,3) + eps;
+			// yprev = y.segment(0,3) + eps;
 			gettimeofday(&time, NULL);
 			start_time = (time.tv_sec *1000) +(time.tv_usec/1000);
 	 		while ((qcurrent-qprev).squaredNorm() > e){
@@ -173,20 +173,18 @@ int main(int argc,char* argv[]){
 	 	ystar = target.segment(0,3);
 
 	 	//for (int j=0;j<2;j++){ // for experiment 1 and 2 (no minimum norm for redundancy resolution)
-	 	//	for(int i=0;i<3;i++){
-		 //		switch(i){
-		 	//		case 0:
-		 				qcurrent=qstart1;
-		 				startingq=qstart1;
-		 	//			break;
-		 	//		case 1:
-		 	//			qcurrent=qstart2;
-		 	//			startingq=qstart2;
-		 	//			break;
-		 	//		case 2:
-		 	//			qcurrent=qstart3;
-		 	//			startingq=qstart3;
-	 		//	}
+	 		for(int i=0;i<3;i++){
+		 		if(i==1){
+		 			qcurrent=qstart1;
+		 			startingq=qstart1;
+		 		}else if (i==2){
+		 			qcurrent=qstart2;
+		 			startingq=qstart2;
+		 		}else (i==3){
+		 			qcurrent=qstart3;
+		 			startingq=qstart3;
+		 		}
+		 			
 				// Iterating inverse kinematic algorithm
 	 			qprev = qcurrent + eps;
 				gettimeofday(&time, NULL);
@@ -233,8 +231,8 @@ int main(int argc,char* argv[]){
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 5 " << qdof5 << "\n";
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 6 " << qdof6 << "\n";
 	 			//std::cout << "Experiment " << j+1 << "starting point " << i+1 << "joint angles 7 " << qdof7 << "\n";
-	 		}
-	 	}
+	 		//}
+	 	//}
 	 	
 		/*
 		// ================== PART C ==================//
